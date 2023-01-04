@@ -1,0 +1,8 @@
+# Ignore all
+*
+# Except these ones
+!.gitignore
+!Microsoft.PowerShell_profile.ps1
+!Microsoft.VSCode_profile.ps1
+!Microsoft.PowerShellISE_profile.ps1
+!Scripts
