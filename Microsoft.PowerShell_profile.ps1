@@ -18,6 +18,8 @@ Set-Alias -Name rifc -Value Replace-InvalidFileCharacters | out-null
 Set-Alias -Name gev -Value Get-EnumValues | out-null
 Set-Alias -Name props -Value Get-Properties | Out-Null
 Set-Alias -Name cde -Value Set-LocationFuzzyEverything
+Set-Alias -Name paste -Value Get-Clipboard
+Set-Alias -Name copy -Value Set-Clipboard
 Set-Alias -Name ".." -Value CDBack
 Set-Alias psadmin Relaunch-Admin
 Set-Alias sudo Relaunch-Admin
