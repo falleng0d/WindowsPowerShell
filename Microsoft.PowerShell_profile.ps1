@@ -41,6 +41,15 @@ if (!(Test-Path variable:backupHome)) {
         -Option ReadOnly -Scope "Global"
 }
 
+function Add-Path($Path) {
+    $Path = [Environment]::GetEnvironmentVariable("PATH", "Machine") + [IO.Path]::PathSeparator + $Path
+    [Environment]::SetEnvironmentVariable( "Path", $Path, "Machine" )
+}
+
+function Get-Path() {
+    [Environment]::GetEnvironmentVariable("PATH", "Machine")
+}
+
 # PS_Drives
 New-PSDrive -Name Mod -Root ($env:PSModulePath -split ';')[0] `
     -PSProvider FileSystem | out-null
@@ -328,6 +337,15 @@ function Set-PathVariable {
     $env:Path = ($arrPath + $addPath) -join ';'
 }
 
+function Copy-Fast {
+    param (
+        [Parameter(Mandatory = $true)] [string]$Source,
+        [Parameter(Mandatory = $true)] [string]$Destination
+    )
+    
+    robocopy $Source $Destination /E /Z /R:5 /W:5 /NP /MT:8
+}
+
 function Show-Notification {
     [cmdletbinding()]
     Param (
@@ -453,8 +471,8 @@ Set-PsFzfOption -TabExpansion
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 
 #Set-PSReadLineKeyHandler -Key Alt+d -Function ShellKillWord
-Set-PSReadLineKeyHandler -Key Alt+Backspace -Function ShellBackwardKillWord
-Set-PSReadLineKeyHandler -Key Ctrl+Backspace -Function ShellBackwardKillWord
+# Set-PSReadLineKeyHandler -Key Alt+Backspace -Function ShellBackwardKillWord
+# Set-PSReadLineKeyHandler -Key Ctrl+Backspace -Function ShellBackwardKillWord
 Set-PSReadLineKeyHandler -Key Ctrl+h -Function ShellBackwardKillWord
 #Set-PSReadLineKeyHandler -Key Alt+b -Function ShellBackwardWord
 #Set-PSReadLineKeyHandler -Key Alt+f -Function ShellForwardWord
@@ -596,4 +614,4 @@ Set-PSReadLineKeyHandler -Key End `
 
 refreshenv | out-null
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
-clear
+Clear-Host
