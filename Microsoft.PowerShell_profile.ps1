@@ -22,6 +22,7 @@ Set-Alias -Name paste -Value Get-Clipboard
 Set-Alias -Name ".." -Value CDBack
 Set-Alias psadmin Relaunch-Admin
 Set-Alias sudo Relaunch-Admin
+Set-Alias k kubectl
 
 #Variables
 New-Variable -Name doc -Value "$home\Documents" `
@@ -461,19 +462,42 @@ function RecreateLinksInteractive {
 	}
 }
 
+Function Test-CommandExists { 
+    Param ($command)
+    $oldPreference = $ErrorActionPreference
+    $ErrorActionPreference = "stop"
+
+    try {
+        if(Get-Command $command) {
+            return $true
+        }
+    }
+    Catch {
+        return $false
+    }
+    Finally {
+        $ErrorActionPreference=$oldPreference
+    }
+}
+
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
 
-Set-PsFzfOption -TabExpansion
-# replace 'Ctrl+t' and 'Ctrl+r' with your preferred bindings:
-Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+try {
+    Set-PsFzfOption -TabExpansion
+    # replace 'Ctrl+t' and 'Ctrl+r' with your preferred bindings:
+    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+} catch {
+    Write-Output "PsFzf not installed"
+}
 
 #Set-PSReadLineKeyHandler -Key Alt+d -Function ShellKillWord
 # Set-PSReadLineKeyHandler -Key Alt+Backspace -Function ShellBackwardKillWord
 # Set-PSReadLineKeyHandler -Key Ctrl+Backspace -Function ShellBackwardKillWord
 Set-PSReadLineKeyHandler -Key Ctrl+h -Function ShellBackwardKillWord
+Set-PSReadLineKeyHandler -Key Alt+Backspace -Function BackwardKillWord
 #Set-PSReadLineKeyHandler -Key Alt+b -Function ShellBackwardWord
 #Set-PSReadLineKeyHandler -Key Alt+f -Function ShellForwardWord
 #Set-PSReadLineKeyHandler -Key Alt+B -Function SelectShellBackwardWord
@@ -613,7 +637,16 @@ Set-PSReadLineKeyHandler -Key End `
 }
 
 # Enable unicode support
-chcp 936
+try {
+    chcp 936
+} catch {
+    Write-Output "chcp not available"
+}
+
+# If kubectl is available, enable kubectl completion
+if (Test-CommandExists kubectl) {
+    & kubectl completion powershell | Out-String | Invoke-Expression
+}
 
 refreshenv | out-null
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
