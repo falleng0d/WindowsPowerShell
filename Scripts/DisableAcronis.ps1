@@ -1,0 +1,15 @@
+﻿Get-Service mobile_backup_server | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service mobile_backup_status_server | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service volume_tracker | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service tib_mounter | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service syncagentsrv | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service fltsrv | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service file_protector | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service AcronisActiveProtectionService | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service afcdpsrv | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service AcrSch2Svc | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service file_tracker | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service snapman | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service mmsminisrv | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service virtual_file | Set-Service -StartupType Disabled | Stop-Service -PassThru
+Get-Service aakore | Set-Service -StartupType Disabled | Stop-Service -PassThru

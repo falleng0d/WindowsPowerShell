@@ -1,8 +1,12 @@
-# Ignore all
-*
-# Except these ones
-!.gitignore
-!Microsoft.PowerShell_profile.ps1
-!Microsoft.VSCode_profile.ps1
-!Microsoft.PowerShellISE_profile.ps1
-!Scripts
+*.un~
+*.ps1~
+Transcripts
+Scratches
+Modules/*
+!Modules/*.psm1
+!Modules/Get-Icon
+!Modules/Get-GitHubSubFolderOrFile
+!Modules/Loop-Enable-Hotspot
+!Modules/Set-WindowState
+!Modules/Async
+profile.ps1

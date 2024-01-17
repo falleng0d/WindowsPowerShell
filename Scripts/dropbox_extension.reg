@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\shell\DropboxExtension]
+@="Dont Sync This"
+"Icon"="%SystemRoot%\\System32\\shell32.dll,71"
+
+[HKEY_CLASSES_ROOT\Directory\shell\DropboxExtension\command]
+@="C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe -NoExit -NoProfile -Command Set-Location -LiteralPath '%L'"
+
+; C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe -windowstyle hidden -NoLogo -NoProfile -Command "C:\Users\CSM02\Dropbox\Projects\dropbox.ps1" '%L'
