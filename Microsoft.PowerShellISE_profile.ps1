@@ -8,8 +8,8 @@ $psISE.CurrentPowerShellTab.VisibleVerticalAddOnTools.SelectedAddOnTool = $modul
 
 &"$home\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
 
-function prompt {
-    $(if (Test-Path variable:/PSDebugContext) { '[DBG]: ' }
-      else { '' }) + $(Get-Location) +
-        $(if ($NestedPromptLevel -ge 1) { '>>' }) + '> '
-}
+# function prompt {
+#     $(if (Test-Path variable:/PSDebugContext) { '[DBG]: ' }
+#       else { '' }) + $(Get-Location) +
+#         $(if ($NestedPromptLevel -ge 1) { '>>' }) + '> '
+# }

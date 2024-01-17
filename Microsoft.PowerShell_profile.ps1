@@ -1,3 +1,5 @@
+#requires -version 2.0
+
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
@@ -7,22 +9,11 @@ if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
 
-Function CDBack { Set-Location .. }
+$Modules = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules"
 
-#Aliases
-Set-Alias -Name ep -Value edit-profile | out-null
-Set-Alias -Name tch -Value Test-ConsoleHost | out-null
-Set-Alias -Name gfl -Value Get-ForwardLink | out-null
-Set-Alias -Name gwp -Value Get-WebPage | out-null
-Set-Alias -Name rifc -Value Replace-InvalidFileCharacters | out-null
-Set-Alias -Name gev -Value Get-EnumValues | out-null
-Set-Alias -Name props -Value Get-Properties | Out-Null
-Set-Alias -Name cde -Value Set-LocationFuzzyEverything
-Set-Alias -Name paste -Value Get-Clipboard
-Set-Alias -Name ".." -Value CDBack
-Set-Alias psadmin Relaunch-Admin
-Set-Alias sudo Relaunch-Admin
-Set-Alias k kubectl
+Import-Module -Name $Modules\AliasDefinitions.psm1
+Import-Module -Name $Modules\VariableDefinitions.psm1
+Import-Module -Name $Modules\UtilityFunctions.psm1
 
 #Variables
 New-Variable -Name doc -Value "$home\Documents" `
@@ -55,36 +46,6 @@ function Get-Path() {
 New-PSDrive -Name Mod -Root ($env:PSModulePath -split ';')[0] `
     -PSProvider FileSystem | out-null
 
-# Async Driver https://superuser.com/questions/1341997/using-a-uwp-api-namespace-in-powershell
-[Windows.System.UserProfile.LockScreen, Windows.System.UserProfile, ContentType = WindowsRuntime] | Out-Null
-Add-Type -AssemblyName System.Runtime.WindowsRuntime
-$asTaskGeneric = ([System.WindowsRuntimeSystemExtensions].GetMethods() | ? { $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' })[0]
-
-Function Await($WinRtTask, $ResultType) {
-    $asTask = $asTaskGeneric.MakeGenericMethod($ResultType)
-    $netTask = $asTask.Invoke($null, @($WinRtTask))
-    $netTask.Wait(-1) | Out-Null
-    $netTask.Result
-}
-Function AwaitAction($WinRtAction) {
-    $asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | ? { $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and !$_.IsGenericMethod })[0]
-    $netTask = $asTask.Invoke($null, @($WinRtAction))
-    $netTask.Wait(-1) | Out-Null
-}
-
-#Functions
-function Relaunch-Admin { Start-Process -Verb RunAs (Get-Process -Id $PID).Path }
-Function Edit-Profile { code $profile }
-function Get-Properties {
-    param ([Parameter(Position = 0, ValueFromPipeline = $True)]$obj)
-    Format-List -Property * -InputObject $obj
-}
-
-Function Test-ConsoleHost {
-    if (($host.Name -match 'consolehost')) { $true }
-    Else { $false }  
-}
-
 Function Replace-InvalidFileCharacters {
     Param ($stringIn,
         $replacementChar)
@@ -114,7 +75,7 @@ Function Get-ForwardLink {
 
 }
 
-Function BackUp-Profile {
+<# Function BackUp-Profile {
     Param([string]$destination = $backupHome)
     if (!(test-path $destination))
     { New-Item -Path $destination -ItemType directory -force | out-null }
@@ -125,25 +86,23 @@ Function BackUp-Profile {
         (Split-Path -Path $PROFILE -Leaf)
 
     copy-item -path $profile -destination "$destination\$backupName" -force
-}
-
-#requires -version 2.0
+} #>
  
 Filter Scrub {
     <#
-.Synopsis
-Clean input strings
-.Description
-This command is designed to take string input and scrub the data, filtering
-out blank lines and removing leading and trailing spaces. The default behavior
-is to write the object to the pipeline, however you can use -PropertyName to
-add a property name value. If you use this parameter, the assumption is that
-contents of the text file are a single item like a computer name.
-.Example
-PS C:\> get-content c:\work\computers.txt | scrub | foreach { get-wmiobject win32_operatingsystem -comp $_}
-.Example
-PS C:\> get-content c:\work\computers.txt | scrub -PropertyName computername | test-connection 
-#>
+    .Synopsis
+        Clean input strings
+    .Description
+        This command is designed to take string input and scrub the data, filtering
+        out blank lines and removing leading and trailing spaces. The default behavior
+        is to write the object to the pipeline, however you can use -PropertyName to
+        add a property name value. If you use this parameter, the assumption is that
+        contents of the text file are a single item like a computer name.
+    .Example
+        PS C:\> get-content c:\work\computers.txt | scrub | foreach { get-wmiobject win32_operatingsystem -comp $_}
+    .Example
+        PS C:\> get-content c:\work\computers.txt | scrub -PropertyName computername | test-connection 
+    #>
  
     [cmdletbinding()]
     Param(
@@ -480,6 +439,7 @@ Function Test-CommandExists {
     }
 }
 
+# Check if the console output supports virtual terminal processing or it's redirected
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
@@ -498,6 +458,7 @@ try {
 # Set-PSReadLineKeyHandler -Key Ctrl+Backspace -Function ShellBackwardKillWord
 Set-PSReadLineKeyHandler -Key Ctrl+h -Function ShellBackwardKillWord
 Set-PSReadLineKeyHandler -Key Alt+Backspace -Function BackwardKillWord
+Set-PSReadLineKeyHandler -key Enter -Function ValidateAndAcceptLine
 #Set-PSReadLineKeyHandler -Key Alt+b -Function ShellBackwardWord
 #Set-PSReadLineKeyHandler -Key Alt+f -Function ShellForwardWord
 #Set-PSReadLineKeyHandler -Key Alt+B -Function SelectShellBackwardWord
@@ -636,18 +597,28 @@ Set-PSReadLineKeyHandler -Key End `
     }
 }
 
-# Enable unicode support
-try {
-    chcp 936
-} catch {
-    Write-Output "chcp not available"
-}
-
 # If kubectl is available, enable kubectl completion
 if (Test-CommandExists kubectl) {
     & kubectl completion powershell | Out-String | Invoke-Expression
 }
 
+# if aws-cli is available, enable aws-cli completion
+if (Test-CommandExists aws) {
+    Register-ArgumentCompleter -Native -CommandName aws -ScriptBlock {
+        param($commandName, $wordToComplete, $cursorPosition)
+            $env:COMP_LINE=$wordToComplete
+            if ($env:COMP_LINE.Length -lt $cursorPosition){
+                $env:COMP_LINE=$env:COMP_LINE + " "
+            }
+            $env:COMP_POINT=$cursorPosition
+            aws_completer.exe | ForEach-Object {
+                [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+            }
+            Remove-Item Env:\COMP_LINE     
+            Remove-Item Env:\COMP_POINT  
+    }
+}
+
 refreshenv | out-null
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
-Clear-Host
+
