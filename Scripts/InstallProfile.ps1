@@ -12,3 +12,5 @@ Import-Module Get-GitHubSubFolderOrFile
 $modulesPath = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules\"
 
 Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $modulesPath
+
+. ([Scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1")))
