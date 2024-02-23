@@ -1,7 +1,6 @@
 #Aliases
-Set-Alias -Name ep -Value edit-profile | out-null
+Set-Alias -Name ep -Value Edit-Profile | out-null
 Set-Alias -Name tch -Value Test-ConsoleHost | out-null
-Set-Alias -Name ep -Value edit-profile | out-null
 Set-Alias -Name tch -Value Test-ConsoleHost | out-null
 Set-Alias -Name gfl -Value Get-ForwardLink | out-null
 Set-Alias -Name gwp -Value Get-WebPage | out-null

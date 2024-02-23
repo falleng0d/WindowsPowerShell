@@ -1,6 +1,6 @@
 if (-not (Get-Process -Name remotecontrol -ErrorAction silentlycontinue)) 
  {
-    Start-Process -FilePath "C:\Users\falleng0d\Dropbox\Projects\remotecontrol\build\windows\runner\Release\remotecontrol.exe"
+    Start-Process -FilePath "C:\Users\falleng0d\Dropbox\Projects\remotecontrol\build\windows\x64\runner\Release\remotecontrol.exe"
 
     # wait for process to start
     while (-not (Get-Process -Name remotecontrol -ErrorAction silentlycontinue)) {
