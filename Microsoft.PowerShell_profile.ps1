@@ -20,16 +20,16 @@ Import-Module -Name $Modules\AliasDefinitions.psm1
 New-Variable -Name doc -Value "$home\Documents" `
     -Description "My documents library. Profile created" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name psdir -Value "$home\Documents\WindowsPowerShell" `
+New-Variable -Name psdir -Value "$home\Documents\PowerShell" `
     -Description "Power shell directory" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name tpath -Value "$home\Documents\WindowsPowerShell\Transcripts" `
+New-Variable -Name tpath -Value "$home\Documents\PowerShell\Transcripts" `
     -Option ReadOnly -ErrorAction 'Ignore'
 New-Variable -Name history -Value ((Get-PSReadlineOption).HistorySavePath) `
     -Option ReadOnly -ErrorAction 'Ignore'
 
 if (!(Test-Path variable:backupHome)) {
-    new-variable -name backupHome -value "$doc\WindowsPowerShell\profileBackup" `
+    new-variable -name backupHome -value "$doc\PowerShell\profileBackup" `
         -Description "Folder for profile backups. Profile created" `
         -Option ReadOnly -Scope "Global"
 }

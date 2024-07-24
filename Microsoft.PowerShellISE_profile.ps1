@@ -6,7 +6,7 @@ $moduleBrowser = $psISE.CurrentPowerShellTab.VerticalAddOnTools.Add('Module Brow
 $psISE.CurrentPowerShellTab.VisibleVerticalAddOnTools.SelectedAddOnTool = $moduleBrowser
 #Module Browser End
 
-&"$home\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+&"$home\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
 
 # function prompt {
 #     $(if (Test-Path variable:/PSDebugContext) { '[DBG]: ' }
