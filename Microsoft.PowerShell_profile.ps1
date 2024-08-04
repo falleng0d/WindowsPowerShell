@@ -28,7 +28,7 @@ New-Variable -Name history -Value ((Get-PSReadlineOption).HistorySavePath) `
     -Option ReadOnly -ErrorAction 'Ignore'
 
 if (!(Test-Path variable:backupHome)) {
-    new-variable -name backupHome -value "$doc\WindowsPowerShell\profileBackup" `
+    new-variable -name backupHome -value "$doc\PowerShell\profileBackup" `
         -Description "Folder for profile backups. Profile created" `
         -Option ReadOnly -Scope "Global"
 }
