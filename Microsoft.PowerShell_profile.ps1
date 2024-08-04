@@ -12,7 +12,6 @@ if (Test-Path($ChocolateyProfile)) {
 $Modules = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules"
 
 Import-Module -Name $Modules\VariableDefinitions.psm1
-Import-Module -Name $Modules\UtilityFunctions.psm1
 Import-Module -Name $Modules\Utils.psm1 -DisableNameChecking
 Import-Module -Name $Modules\AliasDefinitions.psm1
 
