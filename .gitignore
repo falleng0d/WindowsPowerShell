@@ -10,3 +10,4 @@ Modules/*
 !Modules/Set-WindowState
 !Modules/Async
 profile.ps1
+.idea
