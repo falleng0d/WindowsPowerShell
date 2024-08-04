@@ -20,10 +20,10 @@ Import-Module -Name $Modules\AliasDefinitions.psm1
 New-Variable -Name doc -Value "$home\Documents" `
     -Description "My documents library. Profile created" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name psdir -Value "$home\Documents\WindowsPowerShell" `
+New-Variable -Name psdir -Value "$home\Documents\PowerShell" `
     -Description "Power shell directory" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name tpath -Value "$home\Documents\WindowsPowerShell\Transcripts" `
+New-Variable -Name tpath -Value "$home\Documents\PowerShell\Transcripts" `
     -Option ReadOnly -ErrorAction 'Ignore'
 New-Variable -Name history -Value ((Get-PSReadlineOption).HistorySavePath) `
     -Option ReadOnly -ErrorAction 'Ignore'
@@ -60,7 +60,7 @@ Function Replace-InvalidFileCharacters {
 Function Get-TranscriptName {
     $date = Get-Date -format s
     "{0}.{1}.{2}.txt" -f "PowerShell_Transcript", $env:COMPUTERNAME,
-    (rifc -stringIn $date.ToString() -replacementChar "-") 
+    (rifc -stringIn $date.ToString() -replacementChar "-")
 }
 
 Function Get-WebPage {
@@ -88,7 +88,7 @@ Function Get-ForwardLink {
 
     copy-item -path $profile -destination "$destination\$backupName" -force
 } #>
- 
+
 Filter Scrub {
     <#
     .Synopsis
@@ -102,19 +102,19 @@ Filter Scrub {
     .Example
         PS C:\> get-content c:\work\computers.txt | scrub | foreach { get-wmiobject win32_operatingsystem -comp $_}
     .Example
-        PS C:\> get-content c:\work\computers.txt | scrub -PropertyName computername | test-connection 
+        PS C:\> get-content c:\work\computers.txt | scrub -PropertyName computername | test-connection
     #>
- 
+
     [cmdletbinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [string[]]$InputObject,
         [string]$PropertyName
     )
- 
+
     #filter out blank lines
-    $InputObject | where { $_ -match "\w+" } | 
-    ForEach-Object { 
+    $InputObject | where { $_ -match "\w+" } |
+    ForEach-Object {
         #trim off trailing and leading spaces
         $clean = $_.Trim()
         if ($PropertyName) {
@@ -125,8 +125,8 @@ Filter Scrub {
             #write the clean object to the pipeline
             $clean
         }
-    } #foreach 
- 
+    } #foreach
+
 } #close Scrub
 
 Function Get-EnumValues {
@@ -158,7 +158,7 @@ function Get-AttrsToArray {
     $attrs
 }
 
-function hh { 
+function hh {
     $find = $args
     Write-Host "Finding in full history using {`$_ -like `"*$find*`"}"
     cat (Get-PSReadlineOption).HistorySavePath | ? { $_ -like
@@ -181,7 +181,7 @@ function Set-DropboxIgnored {
         [Parameter(Mandatory = $false)] [switch]$IncludeFiles = $false,
         [Parameter(Mandatory = $false)] [switch]$IncludeDirectories = $false
     )
-    
+
     foreach ($item in Get-ChildItem -Attributes Directory, Archive $RootPath) {
         #Write-Host "$($item.Name) $($item.Attributes) $($item -is [System.IO.FileInfo])"
         $attrs = Get-AttrsToArray $item
@@ -199,7 +199,7 @@ function Set-DropboxIgnored {
                     Clear-Content -LiteralPath $item.FullName -Stream com.dropbox.ignored
                 }
             }
-            else { 
+            else {
                 if ($EnableSync -eq $false) {
                     Write-Host -ForegroundColor Red "Stopped syncing $($item.FullName)"
                 }
@@ -261,7 +261,7 @@ function Enable-Hotspot {
     if (-not $val -match 'On') {
         # Start Mobile Hotspot
         Await ($tetheringManager.StartTetheringAsync()) ([Windows.Networking.NetworkOperators.NetworkOperatorTetheringOperationResult])
-    } 
+    }
 }
 
 function Disable-Hotspot {
@@ -274,7 +274,7 @@ function Disable-Hotspot {
     if ($val -match 'On') {
         # Stop Mobile Hotspot
         Await ($tetheringManager.StopTetheringAsync()) ([Windows.Networking.NetworkOperators.NetworkOperatorTetheringOperationResult])
-    } 
+    }
 }
 
 function Set-PathVariable {
@@ -290,7 +290,7 @@ function Set-PathVariable {
     if ($PSBoundParameters.Keys -contains 'RemovePath') {
         $regexPaths += [regex]::Escape($RemovePath)
     }
-    
+
     $arrPath = $env:Path -split ';'
     foreach ($path in $regexPaths) {
         $arrPath = $arrPath | Where-Object { $_ -notMatch "^$path\\?" }
@@ -303,7 +303,7 @@ function Copy-Fast {
         [Parameter(Mandatory = $true)] [string]$Source,
         [Parameter(Mandatory = $true)] [string]$Destination
     )
-    
+
     robocopy $Source $Destination /E /Z /R:5 /W:5 /NP /MT:8
 }
 
@@ -343,13 +343,13 @@ function Show-Notification {
 # }
 
 # BackUp-Profile
-function Get-Tree($Path, $Include = '*') { 
-    @(Get-Item $Path -Include $Include -Force) + 
-        (Get-ChildItem $Path -Recurse -Include $Include -Force) | 
+function Get-Tree($Path, $Include = '*') {
+    @(Get-Item $Path -Include $Include -Force) +
+        (Get-ChildItem $Path -Recurse -Include $Include -Force) |
     sort pspath -Descending -unique
-} 
+}
 
-function Remove-Tree($Path, $Include = '*') { 
+function Remove-Tree($Path, $Include = '*') {
     Get-Tree $Path $Include | Remove-Item -force -recurse
 }
 
@@ -400,10 +400,10 @@ function RecreateLinkInteractive {
 	    $noextension = $FileName.Replace(".lnk", "")
 	    $noextension | Set-Clipboard
 	    Write-Output "Copied $noextension to the clipboard"
-        
+
         # Open the old link for recreation
 		Invoke-Item $filePath
-        
+
         # Delete existing links
 	    foreach ($filePath in $filePaths) {
             Write-Output "Deleting $($filePath)"
@@ -414,7 +414,7 @@ function RecreateLinkInteractive {
 
 function RecreateLinksInteractive {
 	cd $env:USERPROFILE\Desktop
-	
+
 	$fileNames = rg -e 'Chrome' --glob '*.lnk' -aw --crlf --max-depth 1 --files-with-matches
 	foreach ($filename in $fileNames) {
 		Write-Output "Recreating links for $filename"
@@ -422,7 +422,7 @@ function RecreateLinksInteractive {
 	}
 }
 
-Function Test-CommandExists { 
+Function Test-CommandExists {
     Param ($command)
     $oldPreference = $ErrorActionPreference
     $ErrorActionPreference = "stop"
@@ -615,8 +615,8 @@ if (Test-CommandExists aws) {
             aws_completer.exe | ForEach-Object {
                 [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
             }
-            Remove-Item Env:\COMP_LINE     
-            Remove-Item Env:\COMP_POINT  
+            Remove-Item Env:\COMP_LINE
+            Remove-Item Env:\COMP_POINT
     }
 }
 
