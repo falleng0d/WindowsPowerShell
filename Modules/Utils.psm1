@@ -20,9 +20,26 @@ function Reload-Profile {
     . $profile
 }
 
+function New-File {
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$Path
+    )
+    
+    if (Test-Path -Path $Path) {
+        (Get-Item -Path $Path).LastWriteTime = Get-Date
+    } else {
+        New-Item -ItemType File -Path $Path
+    }
+}
+
+function CDBack { Set-Location .. }
+
 Export-ModuleMember -Function Test-ConsoleHost
 Export-ModuleMember -Function Edit-Profile
 Export-ModuleMember -Function Get-Properties
 Export-ModuleMember -Function Relaunch-Admin
 Export-ModuleMember -Function Invoke-Script-Uri
 Export-ModuleMember -Function Reload-Profile
+Export-ModuleMember -Function New-File
+Export-ModuleMember -Function CDBack

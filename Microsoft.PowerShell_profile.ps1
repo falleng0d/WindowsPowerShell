@@ -12,7 +12,6 @@ if (Test-Path($ChocolateyProfile)) {
 $Modules = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules"
 
 Import-Module -Name $Modules\VariableDefinitions.psm1
-Import-Module -Name $Modules\UtilityFunctions.psm1
 Import-Module -Name $Modules\Utils.psm1 -DisableNameChecking
 Import-Module -Name $Modules\AliasDefinitions.psm1
 
@@ -44,8 +43,10 @@ function Get-Path() {
 }
 
 # PS_Drives
-New-PSDrive -Name Mod -Root ($env:PSModulePath -split ';')[0] `
-    -PSProvider FileSystem | out-null
+if (-not (Get-PSDrive -Name Mod -ErrorAction SilentlyContinue)) {
+    New-PSDrive -Name Mod -Root ($env:PSModulePath -split ';')[0] `
+        -PSProvider FileSystem -ErrorAction SilentlyContinue | Out-Null
+}
 
 Function Replace-InvalidFileCharacters {
     Param ($stringIn,
