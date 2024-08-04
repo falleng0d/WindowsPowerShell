@@ -1,3 +1,5 @@
+Import-Module -Name Utils.psm1 -DisableNameChecking
+
 #Aliases
 Set-Alias -Name ep -Value Edit-Profile | out-null
 Set-Alias -Name tch -Value Test-ConsoleHost | out-null
@@ -12,5 +14,7 @@ Set-Alias -Name paste -Value Get-Clipboard
 Set-Alias psadmin Relaunch-Admin
 Set-Alias sudo Relaunch-Admin
 Set-Alias k kubectl
+
+Set-Alias -Name touch -Value New-File
 
 Export-ModuleMember -Alias *
