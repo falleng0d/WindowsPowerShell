@@ -1,4 +1,4 @@
-Import-Module -Name Utils.psm1 -DisableNameChecking
+Import-Module -Name $PSScriptRoot\Utils.psm1 -DisableNameChecking
 
 #Aliases
 Set-Alias -Name ep -Value Edit-Profile | out-null
