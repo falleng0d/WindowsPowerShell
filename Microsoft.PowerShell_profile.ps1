@@ -27,6 +27,18 @@ New-Variable -Name tpath -Value "$home\Documents\PowerShell\Transcripts" `
 New-Variable -Name history -Value ((Get-PSReadlineOption).HistorySavePath) `
     -Option ReadOnly -ErrorAction 'Ignore'
 
+# Provides easy access to the scripts in the Scripts folder.
+# The full path of a script can be accessed as `$Scripts.ScriptName`
+$_scriptFiles = Get-ChildItem -Path "$psdir\Scripts" -Recurse -Include *.ps1
+$scriptPaths = @{}
+foreach ($script in $_scriptFiles) {
+    $scriptName = $script.BaseName
+    $scriptPath = $script.FullName
+    $scriptPaths[$scriptName] = $scriptPath
+}
+$Scripts = New-Object PSObject -Property $scriptPaths
+$Global:Scripts = $Scripts
+
 if (!(Test-Path variable:backupHome)) {
     new-variable -name backupHome -value "$doc\PowerShell\profileBackup" `
         -Description "Folder for profile backups. Profile created" `
