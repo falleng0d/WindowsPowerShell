@@ -15,6 +15,8 @@ Set-Alias psadmin Relaunch-Admin
 Set-Alias sudo Relaunch-Admin
 Set-Alias k kubectl
 
+Set-Alias -Name scratch -Value New-Scratch
 Set-Alias -Name touch -Value New-File
+Set-Alias -Name rpp -Value Reload-Profile
 
 Export-ModuleMember -Alias *
