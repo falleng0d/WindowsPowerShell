@@ -14,6 +14,8 @@ Set-Alias -Name paste -Value Get-Clipboard
 Set-Alias psadmin Relaunch-Admin
 Set-Alias sudo Relaunch-Admin
 Set-Alias k kubectl
+Set-Alias ln New-Symbolic-Link
+Set-Alias lh New-Hard-Link
 
 Set-Alias -Name scratch -Value New-Scratch
 Set-Alias -Name touch -Value New-File

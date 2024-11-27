@@ -61,6 +61,14 @@ function New-Scratch {
     idea $filePath
 }
 
+function New-Symbolic-Link($target, $link) {
+    New-Item -Path $link -ItemType SymbolicLink -Value $target
+}
+
+function New-Hard-Link($target, $link) {
+    New-Item -Path $link -ItemType HardLink -Value $target
+}
+
 Export-ModuleMember -Function Test-ConsoleHost
 Export-ModuleMember -Function Edit-Profile
 Export-ModuleMember -Function Get-Properties
@@ -70,3 +78,5 @@ Export-ModuleMember -Function Reload-Profile
 Export-ModuleMember -Function New-File
 Export-ModuleMember -Function CDBack
 Export-ModuleMember -Function New-Scratch
+Export-ModuleMember -Function New-Symbolic-Link
+Export-ModuleMember -Function New-Hard-Link
