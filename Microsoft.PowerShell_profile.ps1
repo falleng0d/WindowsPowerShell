@@ -613,7 +613,7 @@ Set-PSReadLineKeyHandler -Key End `
 
 # If kubectl is available, enable kubectl completion
 if (Test-CommandExists kubectl) {
-    & kubectl completion powershell | Out-String | Invoke-Expression
+    Import-Module -Name $Modules\KubeCompletion.psm1 -DisableNameChecking
 }
 
 # if aws-cli is available, enable aws-cli completion
@@ -635,4 +635,3 @@ if (Test-CommandExists aws) {
 
 refreshenv | out-null
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
-
