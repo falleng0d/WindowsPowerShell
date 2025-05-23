@@ -41,7 +41,7 @@ function Install-Chocolatey {
         Write-Output "Installing Chocolatey..."
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-        
+
         Write-Output "Enabling global confirmation for chocolatey..."
         choco feature enable -n allowGlobalConfirmation
     } else {
@@ -159,10 +159,43 @@ function Install-WindowsDebloater {
     .\Windows10DebloaterGUI.ps1
 }
 
+function Create-OhMyPoshThemeLink {
+    if (-not (Confirm-Step "Create Oh My Posh Theme Link")) {
+        Write-Output "Skipping Oh My Posh theme link creation..."
+        return
+    }
+
+    if (-not $env:POSH_THEMES_PATH) {
+        Write-Output "POSH_THEMES_PATH environment variable is not set. Oh My Posh may not be installed."
+        return
+    }
+
+    if (-not (Test-Path $env:POSH_THEMES_PATH)) {
+        Write-Output "Creating Oh My Posh themes directory..."
+        New-Item -ItemType Directory -Path $env:POSH_THEMES_PATH -Force | Out-Null
+    }
+
+    $sourceFile = Join-Path $PSScriptRoot "json.omp.json"
+    $destinationFile = Join-Path $env:POSH_THEMES_PATH "json.omp.json"
+
+    if (-not (Test-Path $sourceFile)) {
+        Write-Error "Source theme file not found at: $sourceFile"
+        return
+    }
+
+    if (Test-Path $destinationFile) {
+        Write-Output "Removing existing theme file at: $destinationFile"
+        Remove-Item -Path $destinationFile -Force
+    }
+
+    Write-Output "Creating hard link from $sourceFile to $destinationFile"
+    New-Item -ItemType HardLink -Path $destinationFile -Target $sourceFile -Force
+}
+
 function Assert-Administrator {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    
+
     if (-not $isAdmin) {
         Write-Error "This script must be run as Administrator. Please restart PowerShell as Administrator and try again."
         exit 1
@@ -186,6 +219,7 @@ Install-OpenSSH
 Configure-SSHService
 Configure-SSHFirewallRule
 Install-WindowsTerminal
+Create-OhMyPoshThemeLink
 Install-WindowsDebloater
 
 Write-Output "System bootstrap process completed."
