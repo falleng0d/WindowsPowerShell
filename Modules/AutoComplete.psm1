@@ -18,8 +18,12 @@ Function Test-CommandExists {
     }
 }
 
-# Check if the console output supports virtual terminal processing or it's redirected
-Set-PSReadLineOption -PredictionSource History
+try {
+    Set-PSReadLineOption -PredictionSource History
+} catch {
+    return
+}
+
 Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward

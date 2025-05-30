@@ -3,9 +3,11 @@
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
-$IsNonInteractive = ([Environment]::GetCommandLineArgs() -like '*-NonInteractive*'  `
-                        -or [Environment]::GetCommandLineArgs() -like '*-File*') `
-                        -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*')
+# Check if the console output supports virtual terminal processing or it's redirected
+$isNonInteractive = ([Environment]::GetCommandLineArgs() -like '*-NonInteractive*'  `
+                        -or [Environment]::GetCommandLineArgs() -like '*-File*' `
+                        -or -not $host.UI.SupportsVirtualTerminal) `
+                     -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*') `
 
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
@@ -439,7 +441,7 @@ function RecreateLinksInteractive {
 	}
 }
 
-if ($IsNonInteractive -eq $false) {
+if ($isNonInteractive -eq $false) {
     Import-Module -Name $Modules\AutoComplete.psm1 -DisableNameChecking -Force
     refreshenv | out-null
     oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
