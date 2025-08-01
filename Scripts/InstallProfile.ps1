@@ -3,6 +3,7 @@ Install-Module PSReadLine -RequiredVersion 2.1.0
 Install-Module PSEverything
 Install-Module -Name PSFzf
 Install-Module -Name Recycle
+Install-Module posh-git -Force
 Invoke-RestMethod get.scoop.sh | Invoke-Expression
 scoop install https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/oh-my-posh.json
 
