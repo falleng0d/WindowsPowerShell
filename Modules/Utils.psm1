@@ -1,3 +1,7 @@
+$Modules = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules"
+
+Import-Module -Name $Modules\Find-WordPosition.psm1
+
 function Test-ConsoleHost {
     if (($host.Name -match 'consolehost')) { $true }
     Else { $false }
@@ -236,3 +240,4 @@ Export-ModuleMember -Function Get-VsCodeExtension
 Export-ModuleMember -Function Get-RedirectedUrl
 Export-ModuleMember -Function wget
 Export-ModuleMember -Function Update-NpmDependencies
+Export-ModuleMember -Function Find-WordPosition
