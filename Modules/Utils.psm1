@@ -153,15 +153,59 @@ function wget {
     Invoke-WebRequest -Uri $URL -OutFile $FileName
 }
 
+function export {
+    <#
+    .SYNOPSIS
+    Mimics the bash export command to set environment variables.
+
+    .DESCRIPTION
+    Sets environment variables in PowerShell using bash-style syntax.
+    Supports formats like: export VAR=VALUE or export VAR="VALUE"
+
+    .PARAMETER Expression
+    The variable assignment expression (e.g., "VAR=VALUE" or "VAR='VALUE'")
+
+    .EXAMPLE
+    export PATH=/usr/local/bin:$PATH
+    export NODE_ENV=production
+    export API_KEY="secret123"
+    #>
+    param (
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$Expression
+    )
+
+    # Parse the expression to extract variable name and value
+    if ($Expression -match '^([a-zA-Z_][a-zA-Z0-9_]*)=(.*)$') {
+        $varName = $matches[1]
+        $varValue = $matches[2]
+
+        # Remove surrounding quotes if present
+        if ($varValue -match '^[''"](.*)[''""]$') {
+            $varValue = $matches[1]
+        }
+
+        # Set the environment variable
+        [System.Environment]::SetEnvironmentVariable($varName, $varValue, [System.EnvironmentVariableTarget]::Process)
+
+        # Also set it in the current session's env: drive for immediate access
+        Set-Item -Path "env:$varName" -Value $varValue
+
+        Write-Verbose "Set environment variable: $varName = $varValue"
+    } else {
+        Write-Error "Invalid export syntax. Use: export VAR=VALUE"
+    }
+}
+
 function Update-NpmDependencies {
     param (
         [Parameter(Mandatory=$false)]
         [String]$PackageJsonPath = 'package.json',
-        
+
         [Parameter(Mandatory=$false)]
         [ValidateSet('npm', 'yarn', 'bun')]
         [String]$PackageManager = 'npm',
-        
+
         [Parameter(Mandatory=$false)]
         [Switch]$SkipDevDependencies
     )
@@ -173,25 +217,25 @@ function Update-NpmDependencies {
 
     # Get dependencies from package.json
     $packageJson = Get-Content $PackageJsonPath | ConvertFrom-Json
-    
+
     $hasDependencies = $packageJson.dependencies -and $packageJson.dependencies.PSObject.Properties.Name.Count -gt 0
     $hasDevDependencies = $packageJson.devDependencies -and $packageJson.devDependencies.PSObject.Properties.Name.Count -gt 0
-    
+
     if (-not $hasDependencies -and (-not $hasDevDependencies -or $SkipDevDependencies)) {
         Write-Warning "No dependencies found in package.json"
         return
     }
-    
-    Write-Host "📦 Updating dependencies using $PackageManager..." -ForegroundColor Blue
+
+    Write-Host "Updating dependencies using $PackageManager..." -ForegroundColor Blue
 
     # Update regular dependencies
     if ($hasDependencies) {
         $dependencies = $packageJson.dependencies.PSObject.Properties.Name
-        
+
         Write-Host "Updating regular dependencies..." -ForegroundColor Cyan
         foreach ($dep in $dependencies) {
             Write-Host "Updating $dep..." -ForegroundColor Yellow
-            
+
             switch ($PackageManager) {
                 'npm' { npm install "$dep@latest" }
                 'yarn' { yarn add "$dep@latest" }
@@ -199,15 +243,15 @@ function Update-NpmDependencies {
             }
         }
     }
-    
+
     # Update dev dependencies
     if ($hasDevDependencies -and -not $SkipDevDependencies) {
         $devDependencies = $packageJson.devDependencies.PSObject.Properties.Name
-        
+
         Write-Host "Updating dev dependencies..." -ForegroundColor Cyan
         foreach ($dep in $devDependencies) {
             Write-Host "Updating $dep..." -ForegroundColor Yellow
-            
+
             switch ($PackageManager) {
                 'npm' { npm install "$dep@latest" --save-dev }
                 'yarn' { yarn add "$dep@latest" --dev }
@@ -216,8 +260,8 @@ function Update-NpmDependencies {
         }
     }
 
-    Write-Host "✨ Dependencies updated successfully!" -ForegroundColor Green
-    
+    Write-Host "Dependencies updated successfully!" -ForegroundColor Green
+
     switch ($PackageManager) {
         'npm' { npm install }
         'yarn' { yarn install }
@@ -241,3 +285,4 @@ Export-ModuleMember -Function Get-RedirectedUrl
 Export-ModuleMember -Function wget
 Export-ModuleMember -Function Update-NpmDependencies
 Export-ModuleMember -Function Find-WordPosition
+Export-ModuleMember -Function export
