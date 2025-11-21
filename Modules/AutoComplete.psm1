@@ -18,11 +18,15 @@ Function Test-CommandExists {
     }
 }
 
-# Check if the console output supports virtual terminal processing or it's redirected
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+# Works only if the console output supports virtual terminal processing and is not redirected
+try {
+    Set-PSReadLineOption -PredictionSource History
+    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+} catch {
+    return
+}
 
 try {
     Set-PsFzfOption -TabExpansion
@@ -37,7 +41,7 @@ try {
 # Set-PSReadLineKeyHandler -Key Ctrl+Backspace -Function ShellBackwardKillWord
 Set-PSReadLineKeyHandler -Key Ctrl+h -Function ShellBackwardKillWord
 Set-PSReadLineKeyHandler -Key Alt+Backspace -Function BackwardKillWord
-Set-PSReadLineKeyHandler -key Enter -Function ValidateAndAcceptLine
+Set-PSReadLineKeyHandler -key Enter -Function AcceptLine
 #Set-PSReadLineKeyHandler -Key Alt+b -Function ShellBackwardWord
 #Set-PSReadLineKeyHandler -Key Alt+f -Function ShellForwardWord
 #Set-PSReadLineKeyHandler -Key Alt+B -Function SelectShellBackwardWord
