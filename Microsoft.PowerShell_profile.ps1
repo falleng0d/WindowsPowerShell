@@ -446,3 +446,5 @@ if ($isNonInteractive -eq $false) {
     refreshenv | out-null
     oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
 }
+
+if ($env:TERM_PROGRAM -eq "kiro") { . "$(kiro --locate-shell-integration-path pwsh)" }
