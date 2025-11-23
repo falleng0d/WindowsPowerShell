@@ -65,7 +65,7 @@ function Read-File {
 
 function Read-Files {
     param (
-        [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)]
+        [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true, Position = 0)]
         [string[]]$Paths,
         [Parameter(Mandatory = $false)]
         [int]$MaxTokens = 5000,
@@ -75,9 +75,12 @@ function Read-Files {
         [int]$EndLine = 0
     )
 
+    $maxtokens = [Math]::Ceiling($MaxTokens / $Paths.Count)
+
     foreach ($Path in $Paths) {
         try {
             Read-File -Path $Path -MaxTokens $MaxTokens -StartLine $StartLine -EndLine $EndLine
+            echo ""
         } catch {
             Write-Host "Error reading ${Path}: $_"
         }
