@@ -8,12 +8,21 @@ function Read-File {
         [int]$StartLine = 1,
         [Parameter(Mandatory = $false)]
         [int]$EndLine = 0
-
     )
 
     $originalPath = $Path
     # convert path slashes to unix style
     $Path = $Path -replace "\\", "/"
+
+    $fileExists = Test-Path -Path $Path
+    if (-not $fileExists) {
+        Write-Host "File not found: $Path"
+        return
+    }
+
+    $totalLines = Measure-Object -Line $Path | Select-Object -ExpandProperty Lines
+    $relativePath = ''
+    $printPath = $Path
 
     try {
         if ([System.IO.Path]::IsPathRooted($originalPath)) {
@@ -21,14 +30,9 @@ function Read-File {
             $absolutePath = [System.IO.Path]::GetFullPath($originalPath)
             $relativePath = Resolve-Path -Path $absolutePath -Relative
             $relativePath = $relativePath -replace "\\", "/"
+            $printPath = $relativePath
         }
-
-        if ($relativePath) {
-            Write-Host "Reading $relativePath"
-        }
-    } catch {
-        Write-Host "${Path}:"
-    }
+    } catch {}
 
     $result = $(rg --color=never --heading --line-number --crlf ".*" $Path)
 
@@ -40,11 +44,23 @@ function Read-File {
         }
     } else {
         if ($EndLine -gt 0) {
-            $result = $result | Select-Object -First ($EndLine - 1)
+            $result = $result | Select-Object -First $EndLine
         }
     }
 
-    echo $result | token-trimmer --truncate $MaxTokens
+    $truncatedResult = $(echo $result | token-trimmer --truncate $MaxTokens)
+    $totalResultLines = $result | Measure-Object -Line | Select-Object -ExpandProperty Lines
+    $truncatedResultLines = $truncatedResult | Measure-Object -Line | Select-Object -ExpandProperty Lines
+    $truncatedLines = $totalResultLines - $truncatedResultLines
+    $lastLineNumber = $startLine + $truncatedResultLines - 1
+
+    if ($truncatedLines -gt 0) {
+        echo "$printPath [$StartLine-$lastLineNumber] (truncated $truncatedLines lines due to token limit)"
+    } else {
+        echo "$printPath [$StartLine-$lastLineNumber]"
+    }
+
+    echo $truncatedResult
 }
 
 function Read-Files {
