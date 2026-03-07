@@ -21,6 +21,7 @@ Import-Module -Name $Modules\VariableDefinitions.psm1
 Import-Module -Name $Modules\Utils.psm1 -DisableNameChecking
 Import-Module -Name $Modules\AliasDefinitions.psm1
 Import-Module -Name $Modules\Read-Files.psm1 -DisableNameChecking
+Import-Module -Name $Modules\RemoveNodeModules.psm1
 
 #Variables
 New-Variable -Name doc -Value "$home\Documents" `
