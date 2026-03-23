@@ -4,10 +4,10 @@ using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
 # Check if the console output supports virtual terminal processing or it's redirected
-$isNonInteractive = ([Environment]::GetCommandLineArgs() -like '*-NonInteractive*'  `
-                         -or [Environment]::GetCommandLineArgs() -like '*-File*' `
+$isNonInteractive = ($args -like '*-NonInteractive*'  `
+                         -or $args -like '*-File*' `
                          -or -not $host.UI.SupportsVirtualTerminal) `
-                      -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*') `
+                      -and -not ($args -like '*powershell-integration.ps1*') `
 
 $profileFolder = $profile.CurrentUserAllHosts -replace "\\[^\\]*.ps1$", ""
 $profileFolderName = $profile.CurrentUserAllHosts -replace "[^\\]*.ps1$", "" |
