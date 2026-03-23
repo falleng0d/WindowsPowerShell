@@ -9,6 +9,9 @@ $isNonInteractive = ([Environment]::GetCommandLineArgs() -like '*-NonInteractive
                         -or -not $host.UI.SupportsVirtualTerminal) `
                      -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*') `
 
+$profileFolder = $profile.CurrentUserAllHosts -replace "\\[^\\]*.ps1$",""
+$profileFolderName = $profile.CurrentUserAllHosts -replace "[^\\]*.ps1$","" | Split-Path -Leaf
+
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
@@ -27,10 +30,10 @@ Import-Module -Name $Modules\RemoveNodeModules.psm1
 New-Variable -Name doc -Value "$home\Documents" `
     -Description "My documents library. Profile created" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name psdir -Value "$home\Documents\WindowsPowerShell" `
+New-Variable -Name psdir -Value "$profileFolder" `
     -Description "Power shell directory" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name tpath -Value "$home\Documents\WindowsPowerShell\Transcripts" `
+New-Variable -Name tpath -Value "$profileFolder\Transcripts" `
     -Option ReadOnly -ErrorAction 'Ignore'
 New-Variable -Name history -Value ((Get-PSReadlineOption).HistorySavePath) `
     -Option ReadOnly -ErrorAction 'Ignore'
@@ -48,7 +51,7 @@ $Scripts = New-Object PSObject -Property $scriptPaths
 $Global:Scripts = $Scripts
 
 if (!(Test-Path variable:backupHome)) {
-    new-variable -name backupHome -value "$doc\WindowsPowerShell\profileBackup" `
+    new-variable -name backupHome -value "$profileFolder\profileBackup" `
         -Description "Folder for profile backups. Profile created" `
         -Option ReadOnly -Scope "Global"
 }
