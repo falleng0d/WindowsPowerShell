@@ -1,1 +1,1 @@
-&"$home\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
+#&"$home\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
