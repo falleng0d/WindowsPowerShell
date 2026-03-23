@@ -159,39 +159,6 @@ function Install-WindowsDebloater {
     .\Windows10DebloaterGUI.ps1
 }
 
-function Create-OhMyPoshThemeLink {
-    if (-not (Confirm-Step "Create Oh My Posh Theme Link")) {
-        Write-Output "Skipping Oh My Posh theme link creation..."
-        return
-    }
-
-    if (-not $env:POSH_THEMES_PATH) {
-        Write-Output "POSH_THEMES_PATH environment variable is not set. Oh My Posh may not be installed."
-        return
-    }
-
-    if (-not (Test-Path $env:POSH_THEMES_PATH)) {
-        Write-Output "Creating Oh My Posh themes directory..."
-        New-Item -ItemType Directory -Path $env:POSH_THEMES_PATH -Force | Out-Null
-    }
-
-    $sourceFile = Join-Path $PSScriptRoot "json.omp.json"
-    $destinationFile = Join-Path $env:POSH_THEMES_PATH "json.omp.json"
-
-    if (-not (Test-Path $sourceFile)) {
-        Write-Error "Source theme file not found at: $sourceFile"
-        return
-    }
-
-    if (Test-Path $destinationFile) {
-        Write-Output "Removing existing theme file at: $destinationFile"
-        Remove-Item -Path $destinationFile -Force
-    }
-
-    Write-Output "Creating hard link from $sourceFile to $destinationFile"
-    New-Item -ItemType HardLink -Path $destinationFile -Target $sourceFile -Force
-}
-
 function Disable-PowerShellTelemetry {
     if (-not (Confirm-Step "Disable PowerShell Telemetry")) {
         Write-Output "Skipping PowerShell telemetry disablement..."
@@ -245,7 +212,6 @@ Install-OpenSSH
 Configure-SSHService
 Configure-SSHFirewallRule
 Install-WindowsTerminal
-Create-OhMyPoshThemeLink
 Install-WindowsDebloater
 
 Write-Output "System bootstrap process completed."
