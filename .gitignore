@@ -12,6 +12,7 @@ Modules/*
 !Modules/Read-Files
 !Modules/Async
 !Modules/Npm
+!Modules/Utils
 profile.ps1
 .idea
 Help
