@@ -1,4 +1,5 @@
 #Variables
+$profileFolder = Split-Path $profile.CurrentUserAllHosts
 New-Variable -Name doc -Value "$home\Documents" `
     -Description "My documents library. Profile created" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'

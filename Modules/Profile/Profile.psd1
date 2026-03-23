@@ -13,9 +13,10 @@
     )
     CmdletsToExport = @()
     VariablesToExport = @(
-        '*'
+        'doc',
+        'psdir',
+        'tpath',
+        'history'
     )
-    AliasesToExport = @(
-        '*'
-    )
+    AliasesToExport = '*'
 }
