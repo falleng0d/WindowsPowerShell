@@ -9,8 +9,6 @@
     FunctionsToExport = @(
         'Test-ConsoleHost',
         'Edit-Profile',
-        'Initialize-ScriptPaths',
-        'Initialize-PSDrives',
         'Get-Properties',
         'Enter-Admin',
         'Add-Path',

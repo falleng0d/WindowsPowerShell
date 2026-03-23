@@ -7,7 +7,9 @@
     Copyright = '(c) matj.dev. All rights reserved.'
     PowerShellVersion = '5.1'
     FunctionsToExport = @(
-        'Set-ParentLocation'
+        'Set-ParentLocation',
+        'Initialize-ScriptPaths',
+        'Initialize-PSDrives'
     )
     CmdletsToExport = @()
     VariablesToExport = @(

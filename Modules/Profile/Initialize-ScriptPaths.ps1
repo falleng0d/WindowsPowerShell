@@ -9,4 +9,3 @@ function Initialize-ScriptPaths {
 
     $Global:Scripts = New-Object PSObject -Property $scriptPaths
 }
-
