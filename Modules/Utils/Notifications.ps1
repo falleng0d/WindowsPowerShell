@@ -2,27 +2,49 @@ function Show-Notification {
     [cmdletbinding()]
     Param (
         [string]
-        $ToastTitle,
+        $ToastTitle = "PowerShell",
         [string]
         [parameter(ValueFromPipeline)]
-        $ToastText
+        $ToastText = "PowerShell Notification"
     )
 
-    [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null
-    $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
+    Add-Type -AssemblyName System.Runtime.WindowsRuntime -ErrorAction SilentlyContinue
 
-    $RawXml = [xml] $Template.GetXml()
-    ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) > $null
-    ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) > $null
+    $toastManagerType = [type]::GetType('Windows.UI.Notifications.ToastNotificationManager, Windows, ContentType=WindowsRuntime', $false)
+    $xmlDocumentType = [type]::GetType('Windows.Data.Xml.Dom.XmlDocument, Windows, ContentType=WindowsRuntime', $false)
+    $toastType = [type]::GetType('Windows.UI.Notifications.ToastNotification, Windows, ContentType=WindowsRuntime', $false)
+    $toastTemplateType = [type]::GetType('Windows.UI.Notifications.ToastTemplateType, Windows, ContentType=WindowsRuntime', $false)
 
-    $SerializedXml = New-Object Windows.Data.Xml.Dom.XmlDocument
-    $SerializedXml.LoadXml($RawXml.OuterXml)
+    if ($toastManagerType -and $xmlDocumentType -and $toastType -and $toastTemplateType) {
+        $template = $toastManagerType::GetTemplateContent($toastTemplateType::ToastText02)
+        $rawXml = [xml]$template.GetXml()
+        ($rawXml.toast.visual.binding.text | Where-Object { $_.id -eq '1' }).AppendChild($rawXml.CreateTextNode($ToastTitle)) > $null
+        ($rawXml.toast.visual.binding.text | Where-Object { $_.id -eq '2' }).AppendChild($rawXml.CreateTextNode($ToastText)) > $null
 
-    $Toast = [Windows.UI.Notifications.ToastNotification]::new($SerializedXml)
-    $Toast.Tag = "PowerShell"
-    $Toast.Group = "PowerShell"
-    $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1)
+        $serializedXml = New-Object Windows.Data.Xml.Dom.XmlDocument
+        $serializedXml.LoadXml($rawXml.OuterXml)
 
-    $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("PowerShell")
-    $Notifier.Show($Toast)
+        $toast = $toastType::new($serializedXml)
+        $toast.Tag = 'PowerShell'
+        $toast.Group = 'PowerShell'
+        $toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1)
+        $toast.Priority = $toastType::High
+        $toast.ExpirationTime = [DateTimeOffset]::Now.AddSeconds(1)
+        $toast.ExpiresOnReboot = $true
+
+        $notifier = $toastManagerType::CreateToastNotifier('PowerShell')
+        $notifier.Show($toast)
+        return
+    }
+
+    Add-Type -AssemblyName System.Windows.Forms
+    Add-Type -AssemblyName System.Drawing
+
+    $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
+    $notifyIcon.Icon = [System.Drawing.SystemIcons]::Information
+    $notifyIcon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+    $notifyIcon.BalloonTipTitle = $ToastTitle
+    $notifyIcon.BalloonTipText = $ToastText
+    $notifyIcon.Visible = $true
+    $notifyIcon.ShowBalloonTip(5000)
 }

@@ -1,4 +1,4 @@
-function Stop-Process-Gracefully {
+function Stop-ProcessGracefully {
     param (
         [Parameter(Mandatory = $true)]
         [string]$ProcessName

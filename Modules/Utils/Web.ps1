@@ -1,4 +1,4 @@
-function Invoke-Script-Uri {
+function Invoke-ScriptUri {
     param (
         [Parameter(Mandatory = $true)]
         [string]$ScriptUri

@@ -14,7 +14,8 @@ Modules/*
 !Modules/Npm
 !Modules/Utils
 !Modules/AutoComplete
-profile.ps1
+!Modules/Profile
+/profile.ps1
 .idea
 Help
 .aider*
