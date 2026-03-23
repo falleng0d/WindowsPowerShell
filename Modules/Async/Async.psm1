@@ -14,3 +14,5 @@ Function AwaitAction($WinRtAction) {
     $netTask = $asTask.Invoke($null, @($WinRtAction))
     $netTask.Wait(-1) | Out-Null
 }
+
+Export-ModuleMember -Function Await, AwaitAction
