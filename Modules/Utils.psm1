@@ -1,11 +1,8 @@
-$Modules = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules"
-
-Import-Module -Name $Modules\Find-WordPosition.psm1
-
 function Test-ConsoleHost {
     if (($host.Name -match 'consolehost')) { $true }
     Else { $false }
 }
+
 function Invoke-Script-Uri {
     param (
         [Parameter(Mandatory = $true)]
@@ -14,8 +11,11 @@ function Invoke-Script-Uri {
     $script = (New-Object System.Net.WebClient).DownloadString($ScriptUri)
     Invoke-Expression $script
 }
+
 function Relaunch-Admin { Start-Process -Verb RunAs (Get-Process -Id $PID).Path }
+
 function Edit-Profile { code ($PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","") }
+
 function Get-Properties {
     param ([Parameter(Position = 0, ValueFromPipeline = $True)]$obj)
     Format-List -Property * -InputObject $obj
@@ -197,78 +197,6 @@ function export {
     }
 }
 
-function Update-NpmDependencies {
-    param (
-        [Parameter(Mandatory=$false)]
-        [String]$PackageJsonPath = 'package.json',
-
-        [Parameter(Mandatory=$false)]
-        [ValidateSet('npm', 'yarn', 'bun')]
-        [String]$PackageManager = 'npm',
-
-        [Parameter(Mandatory=$false)]
-        [Switch]$SkipDevDependencies
-    )
-
-    if (-not (Test-Path -Path $PackageJsonPath)) {
-        Write-Error "Package.json file not found at path: $PackageJsonPath"
-        return
-    }
-
-    # Get dependencies from package.json
-    $packageJson = Get-Content $PackageJsonPath | ConvertFrom-Json
-
-    $hasDependencies = $packageJson.dependencies -and $packageJson.dependencies.PSObject.Properties.Name.Count -gt 0
-    $hasDevDependencies = $packageJson.devDependencies -and $packageJson.devDependencies.PSObject.Properties.Name.Count -gt 0
-
-    if (-not $hasDependencies -and (-not $hasDevDependencies -or $SkipDevDependencies)) {
-        Write-Warning "No dependencies found in package.json"
-        return
-    }
-
-    Write-Host "- Updating dependencies using $PackageManager..." -ForegroundColor Blue
-
-    # Update regular dependencies
-    if ($hasDependencies) {
-        $dependencies = $packageJson.dependencies.PSObject.Properties.Name
-
-        Write-Host "Updating regular dependencies..." -ForegroundColor Cyan
-        foreach ($dep in $dependencies) {
-            Write-Host "Updating $dep..." -ForegroundColor Yellow
-
-            switch ($PackageManager) {
-                'npm' { npm install "$dep@latest" }
-                'yarn' { yarn add "$dep@latest" }
-                'bun' { bun add "$dep@latest" }
-            }
-        }
-    }
-
-    # Update dev dependencies
-    if ($hasDevDependencies -and -not $SkipDevDependencies) {
-        $devDependencies = $packageJson.devDependencies.PSObject.Properties.Name
-
-        Write-Host "Updating dev dependencies..." -ForegroundColor Cyan
-        foreach ($dep in $devDependencies) {
-            Write-Host "Updating $dep..." -ForegroundColor Yellow
-
-            switch ($PackageManager) {
-                'npm' { npm install "$dep@latest" --save-dev }
-                'yarn' { yarn add "$dep@latest" --dev }
-                'bun' { bun add "$dep@latest" --development }
-            }
-        }
-    }
-
-    Write-Host "- Dependencies updated successfully!" -ForegroundColor Green
-
-    switch ($PackageManager) {
-        'npm' { npm install }
-        'yarn' { yarn install }
-        'bun' { bun install }
-    }
-}
-
 Export-ModuleMember -Function Test-ConsoleHost
 Export-ModuleMember -Function Edit-Profile
 Export-ModuleMember -Function Get-Properties
@@ -283,6 +211,4 @@ Export-ModuleMember -Function New-Hard-Link
 Export-ModuleMember -Function Get-VsCodeExtension
 Export-ModuleMember -Function Get-RedirectedUrl
 Export-ModuleMember -Function wget
-Export-ModuleMember -Function Update-NpmDependencies
-Export-ModuleMember -Function Find-WordPosition
 Export-ModuleMember -Function export
