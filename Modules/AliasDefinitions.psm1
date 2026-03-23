@@ -1,5 +1,3 @@
-Import-Module -Name $PSScriptRoot\Utils.psm1 -DisableNameChecking
-
 #Aliases
 Set-Alias -Name ep -Value Edit-Profile | out-null
 Set-Alias -Name tch -Value Test-ConsoleHost | out-null
