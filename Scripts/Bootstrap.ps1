@@ -55,19 +55,7 @@ function Install-RequiredApps {
         return
     }
 
-    $appsToInstall = @{
-        'git' = 'git'
-        'Code' = 'vscode'
-    }
-
-    foreach ($app in $appsToInstall.GetEnumerator()) {
-        if (!(Get-Command $app.Key -ErrorAction SilentlyContinue)) {
-            Write-Output "Installing $($app.Value)..."
-            choco install $app.Value
-        } else {
-            Write-Output "$($app.Value) is already installed."
-        }
-    }
+    choco install git oh-my-posh ripgrep make jq yq tldr
 }
 
 function Install-OpenSSH {
