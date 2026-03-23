@@ -22,8 +22,9 @@ if (!(Test-Path variable:backupHome)) {
         -Option ReadOnly -Scope "Global"
 }
 
-Initialize-PSDrives
-Initialize-ScriptPaths
+Import-Module -Name Profile
+#Initialize-PSDrives
+#Initialize-ScriptPaths
 
 if ($isNonInteractive -eq $false) {
     Import-Module -Name AutoComplete
