@@ -8,7 +8,10 @@ Modules/*
 !Modules/Get-GitHubSubFolderOrFile
 !Modules/Loop-Enable-Hotspot
 !Modules/Set-WindowState
+!Modules/Find-WordPosition
+!Modules/Read-Files
 !Modules/Async
+!Modules/Npm
 profile.ps1
 .idea
 Help

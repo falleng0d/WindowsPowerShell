@@ -1,4 +1,4 @@
-function RemoveNodeModules {
+function Remove-NodeModules {
     param(
         [switch]$Dry,
         [switch]$Lockfiles
@@ -90,5 +90,3 @@ function RemoveNodeModules {
 
     Write-Host "`nDone."
 }
-
-Export-ModuleMember -Function RemoveNodeModules
