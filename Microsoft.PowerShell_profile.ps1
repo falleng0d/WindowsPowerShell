@@ -30,7 +30,6 @@ if (!(Test-Path variable:backupHome)) {
 
 Import-Module -Name AutoComplete
 refreshenv | out-null
-oh-my-posh init pwsh --config "$PSScriptRoot\theme.omp.json" |
-        Invoke-Expression | out-null
+oh-my-posh init pwsh --config "$PSScriptRoot\theme.omp.json" | Invoke-Expression | out-null
 
 if ($env:TERM_PROGRAM -eq "kiro") { . "$(kiro --locate-shell-integration-path pwsh)" }
