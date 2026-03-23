@@ -7,6 +7,16 @@ function Invoke-Script-Uri {
     Invoke-Expression $script
 }
 
+function Get-WebPage {
+    Param($url)
+    (New-Object -ComObject shell.application).open($url)
+}
+
+function Get-ForwardLink {
+    Param($cmdletName)
+    (Get-Command $cmdletName).helpuri
+}
+
 function Get-VsCodeExtension {
     param (
         [Parameter(Mandatory = $true)]
