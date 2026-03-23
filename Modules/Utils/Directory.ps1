@@ -1,4 +1,5 @@
-function List-Dir-Numbered {
+function Get-DirNumbered {
+    [Diagnostics.CodeAnalysis.SupressMessageAttribute('PSUseApprovedVerb', '')]
     $a = @(Get-ChildItem)
     for ($i = 0; $i -le ($a.length - 1); $i += 1) {
         "$($i): $($a[$i].Name)"

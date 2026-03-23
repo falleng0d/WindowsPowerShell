@@ -1,7 +1,7 @@
-function New-Symbolic-Link($target, $link) {
+function New-SymbolicLink($target, $link) {
     New-Item -Path $link -ItemType SymbolicLink -Value $target
 }
 
-function New-Hard-Link($target, $link) {
+function New-HardLink($target, $link) {
     New-Item -Path $link -ItemType HardLink -Value $target
 }

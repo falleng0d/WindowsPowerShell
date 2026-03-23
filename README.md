@@ -72,8 +72,8 @@ Installs required PowerShell modules: `Pscx`, `PSReadLine`, `PSEverything`, `PSF
 | `Relaunch-Admin` | Restarts PowerShell as Administrator |
 | `New-File <path>` | Creates a file or updates its timestamp (like `touch`) |
 | `New-Scratch [-Extension]` | Creates a numbered scratch file and opens it in IntelliJ IDEA |
-| `New-Symbolic-Link <target> <link>` | Creates a symbolic link |
-| `New-Hard-Link <target> <link>` | Creates a hard link |
+| `New-SymbolicLink <target> <link>` | Creates a symbolic link |
+| `New-HardLink <target> <link>` | Creates a hard link |
 | `Get-VsCodeExtension <name>` | Downloads a VS Code extension `.vsix` from the marketplace |
 | `Get-RedirectedUrl <url>` | Resolves a URL redirect |
 | `wget <url>` | Downloads a file by URL to the current directory |
@@ -126,8 +126,8 @@ Read-Files <path1> <path2> ...  # Also aliased as `catx` and `view`
 | `sudo` / `psadmin` | `Relaunch-Admin` |
 | `touch` | `New-File` |
 | `scratch` | `New-Scratch` |
-| `ln` | `New-Symbolic-Link` |
-| `lh` | `New-Hard-Link` |
+| `ln` | `New-SymbolicLink` |
+| `lh` | `New-HardLink` |
 | `..` | Go up one directory |
 | `k` | `kubectl` |
 | `paste` | `Get-Clipboard` |
@@ -154,7 +154,7 @@ Additional functions defined directly in `Microsoft.PowerShell_profile.ps1`:
 | `Set-PathVariable` | Add or remove entries from `$env:Path` |
 | `Set-DropboxIgnored` | Mark/unmark files or folders as Dropbox sync-ignored |
 | `Join-ffmpegMp4` | Concatenate multiple MP4 files using ffmpeg |
-| `Stop-Process-Gracefully` | Close a process by name gracefully before force-stopping |
+| `Stop-ProcessGracefully` | Close a process by name gracefully before force-stopping |
 | `Get-Tree / Remove-Tree` | Recursively list or delete a directory tree |
 | `Scrub` | Filter pipeline strings: removes blank lines and trims whitespace |
 | `Get-EnumValues` | List all values of a .NET enum type |

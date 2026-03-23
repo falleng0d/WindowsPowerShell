@@ -5,12 +5,13 @@ using namespace System.Management.Automation.Language
 
 # Check if the console output supports virtual terminal processing or it's redirected
 $isNonInteractive = ([Environment]::GetCommandLineArgs() -like '*-NonInteractive*'  `
-                        -or [Environment]::GetCommandLineArgs() -like '*-File*' `
-                        -or -not $host.UI.SupportsVirtualTerminal) `
-                     -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*') `
+                         -or [Environment]::GetCommandLineArgs() -like '*-File*' `
+                         -or -not $host.UI.SupportsVirtualTerminal) `
+                      -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*') `
 
-$profileFolder = $profile.CurrentUserAllHosts -replace "\\[^\\]*.ps1$",""
-$profileFolderName = $profile.CurrentUserAllHosts -replace "[^\\]*.ps1$","" | Split-Path -Leaf
+$profileFolder = $profile.CurrentUserAllHosts -replace "\\[^\\]*.ps1$", ""
+$profileFolderName = $profile.CurrentUserAllHosts -replace "[^\\]*.ps1$", "" |
+        Split-Path -Leaf
 
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
@@ -18,27 +19,9 @@ if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
 
-$Modules = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules"
-
-Import-Module -Name $Modules\VariableDefinitions.psm1
-Import-Module -Name $Modules\Utils\Utils.psm1 -DisableNameChecking
-Import-Module -Name $Modules\AliasDefinitions.psm1
-
-#Variables
-New-Variable -Name doc -Value "$home\Documents" `
-    -Description "My documents library. Profile created" `
-    -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name psdir -Value "$profileFolder" `
-    -Description "Power shell directory" `
-    -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name tpath -Value "$profileFolder\Transcripts" `
-    -Option ReadOnly -ErrorAction 'Ignore'
-New-Variable -Name history -Value ((Get-PSReadlineOption).HistorySavePath) `
-    -Option ReadOnly -ErrorAction 'Ignore'
-
 # Provides easy access to the scripts in the Scripts folder.
 # The full path of a script can be accessed as `$Scripts.ScriptName`
-$_scriptFiles = Get-ChildItem -Path "$psdir\Scripts" -Recurse -Include *.ps1
+$_scriptFiles = Get-ChildItem -Path "$PSScriptRoot\Scripts" -Recurse -Include *.ps1
 $scriptPaths = @{}
 foreach ($script in $_scriptFiles) {
     $scriptName = $script.BaseName
@@ -63,7 +46,8 @@ if (-not (Get-PSDrive -Name Mod -ErrorAction SilentlyContinue)) {
 if ($isNonInteractive -eq $false) {
     Import-Module -Name AutoComplete
     refreshenv | out-null
-    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
+    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" |
+            Invoke-Expression | out-null
 }
 
 if ($env:TERM_PROGRAM -eq "kiro") { . "$(kiro --locate-shell-integration-path pwsh)" }

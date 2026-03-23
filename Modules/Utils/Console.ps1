@@ -3,6 +3,9 @@ function Test-ConsoleHost {
     Else { $false }
 }
 
-function Relaunch-Admin {
+function Enter-Admin {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerb', '')]
+    param()
+
     Start-Process -Verb RunAs (Get-Process -Id $PID).Path
 }

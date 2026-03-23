@@ -1,4 +1,4 @@
-function Replace-InvalidFileCharacters {
+function Repair-InvalidFileCharacters {
     Param (
         $stringIn,
         $replacementChar
@@ -10,7 +10,7 @@ function Replace-InvalidFileCharacters {
 function Get-TranscriptName {
     $date = Get-Date -format s
     "{0}.{1}.{2}.txt" -f "PowerShell_Transcript", $env:COMPUTERNAME,
-    (Replace-InvalidFileCharacters -stringIn $date.ToString() -replacementChar "-")
+    (Repair-InvalidFileCharacters -stringIn $date.ToString() -replacementChar "-")
 }
 
 filter Scrub {
