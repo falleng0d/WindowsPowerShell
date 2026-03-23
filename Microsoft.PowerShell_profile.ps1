@@ -396,56 +396,8 @@ function Stop-Process-Gracefully {
     }
 }
 
-function RecreateLinkInteractive {
-	param (
-		[string]$FileName
-	)
-
-	$filePaths = Search-Everything -Global $FileName
-
-	# If $filePaths is not a array, make it one
-	if ($filePaths -isnot [array]) {
-		$filePaths = @($filePaths)
-	}
-
-	Write-Output "Found $($filePaths.Count) paths for $FileName"
-	Write-Output "Paths found:"
-	$filePaths | ForEach-Object { Write-Output $_ }
-
-	# Select the first path
-	$filePath = $filePaths[0]
-
-	# Ask the user if he wants to recreate the link
-	$answer = Read-Host "Do you want to recreate $($filePath)? (Y/n)"
-	if ($answer -ne "n" -or $answer -ne "N") {
-        # Copy the filename without extension to the clipboard
-	    $noextension = $FileName.Replace(".lnk", "")
-	    $noextension | Set-Clipboard
-	    Write-Output "Copied $noextension to the clipboard"
-
-        # Open the old link for recreation
-		Invoke-Item $filePath
-
-        # Delete existing links
-	    foreach ($filePath in $filePaths) {
-            Write-Output "Deleting $($filePath)"
-		    Remove-Item $filePath
-	    }
-	}
-}
-
-function RecreateLinksInteractive {
-	cd $env:USERPROFILE\Desktop
-
-	$fileNames = rg -e 'Chrome' --glob '*.lnk' -aw --crlf --max-depth 1 --files-with-matches
-	foreach ($filename in $fileNames) {
-		Write-Output "Recreating links for $filename"
-		RecreateLinksInteractive "$filename"
-	}
-}
-
 if ($isNonInteractive -eq $false) {
-    Import-Module -Name $Modules\AutoComplete.psm1 -DisableNameChecking -Force
+    Import-Module -Name AutoComplete
     refreshenv | out-null
     oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
 }
