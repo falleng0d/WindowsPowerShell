@@ -13,6 +13,7 @@ Modules/*
 !Modules/Async
 !Modules/Npm
 !Modules/Utils
+!Modules/AutoComplete
 profile.ps1
 .idea
 Help
