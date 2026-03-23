@@ -15,3 +15,6 @@ param()
 . $PSScriptRoot\Symbolic-Links.ps1
 . $PSScriptRoot\Web.ps1
 . $PSScriptRoot\Environment.ps1
+. $PSScriptRoot\New-Scratch.ps1
+. $PSScriptRoot\Initialize-ScriptPaths.ps1
+. $PSScriptRoot\Initialize-PSDrives.ps1
