@@ -192,6 +192,31 @@ function Create-OhMyPoshThemeLink {
     New-Item -ItemType HardLink -Path $destinationFile -Target $sourceFile -Force
 }
 
+function Disable-PowerShellTelemetry {
+    if (-not (Confirm-Step "Disable PowerShell Telemetry")) {
+        Write-Output "Skipping PowerShell telemetry disablement..."
+        return
+    }
+
+    Write-Output "Disabling PowerShell telemetry..."
+    $variables = [ordered]@{
+        POWERSHELL_CLI_TELEMETRY_OPTOUT = "1"
+        POWERSHELL_TELEMETRY_OPTOUT     = "1"
+        POWERSHELL_UPDATECHECK          = "Off"
+        POWERSHELL_UPDATECHECK_OPTOUT   = "1"
+        DOTNET_CLI_TELEMETRY_OPTOUT     = "1"
+        DOTNET_TELEMETRY_OPTOUT         = "1"
+        COMPlus_EnableDiagnostics       = "0"
+    }
+    foreach ($target in "User","Machine") {
+        write-Host "Target: $target" -foregroundcolor cyan
+        foreach ($key in $variables.Keys) {
+            write-Host "  $key = $($variables.$Key)"
+            [Environment]::SetEnvironmentVariable($key,$variables.$Key, $target)
+        }
+    }
+}
+
 function Assert-Administrator {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -213,6 +238,7 @@ if ($AskBeforeExecuting) {
 Assert-Administrator
 
 Set-UnrestrictedExecutionPolicy
+Disable-PowerShellTelemetry
 Install-Chocolatey
 Install-RequiredApps
 Install-OpenSSH
