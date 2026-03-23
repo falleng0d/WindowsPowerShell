@@ -12,6 +12,8 @@ if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
 
+Import-Module -Name Profile
+
 if ($isNonInteractive -eq $true) {
     return
 }
@@ -22,15 +24,13 @@ if (!(Test-Path variable:backupHome)) {
         -Option ReadOnly -Scope "Global"
 }
 
-Import-Module -Name Profile
+
 #Initialize-PSDrives
 #Initialize-ScriptPaths
 
-if ($isNonInteractive -eq $false) {
-    Import-Module -Name AutoComplete
-    refreshenv | out-null
-    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" |
-            Invoke-Expression | out-null
-}
+Import-Module -Name AutoComplete
+refreshenv | out-null
+oh-my-posh init pwsh --config "$PSScriptRoot\theme.omp.json" |
+        Invoke-Expression | out-null
 
 if ($env:TERM_PROGRAM -eq "kiro") { . "$(kiro --locate-shell-integration-path pwsh)" }
