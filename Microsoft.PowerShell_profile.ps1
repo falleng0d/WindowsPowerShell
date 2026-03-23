@@ -3,9 +3,11 @@
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
-$IsNonInteractive = ([Environment]::GetCommandLineArgs() -like '*-NonInteractive*'  `
-                        -or [Environment]::GetCommandLineArgs() -like '*-File*') `
-                        -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*')
+# Check if the console output supports virtual terminal processing or it's redirected
+$isNonInteractive = ([Environment]::GetCommandLineArgs() -like '*-NonInteractive*'  `
+                        -or [Environment]::GetCommandLineArgs() -like '*-File*' `
+                        -or -not $host.UI.SupportsVirtualTerminal) `
+                     -and -not ([Environment]::GetCommandLineArgs() -like '*powershell-integration.ps1*') `
 
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
@@ -18,15 +20,17 @@ $Modules = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules"
 Import-Module -Name $Modules\VariableDefinitions.psm1
 Import-Module -Name $Modules\Utils.psm1 -DisableNameChecking
 Import-Module -Name $Modules\AliasDefinitions.psm1
+Import-Module -Name $Modules\Read-Files.psm1 -DisableNameChecking
+Import-Module -Name $Modules\RemoveNodeModules.psm1
 
 #Variables
 New-Variable -Name doc -Value "$home\Documents" `
     -Description "My documents library. Profile created" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name psdir -Value "$home\Documents\PowerShell" `
+New-Variable -Name psdir -Value "$home\Documents\WindowsPowerShell" `
     -Description "Power shell directory" `
     -Option ReadOnly -Scope "Global" -ErrorAction 'Ignore'
-New-Variable -Name tpath -Value "$home\Documents\PowerShell\Transcripts" `
+New-Variable -Name tpath -Value "$home\Documents\WindowsPowerShell\Transcripts" `
     -Option ReadOnly -ErrorAction 'Ignore'
 New-Variable -Name history -Value ((Get-PSReadlineOption).HistorySavePath) `
     -Option ReadOnly -ErrorAction 'Ignore'
@@ -44,7 +48,7 @@ $Scripts = New-Object PSObject -Property $scriptPaths
 $Global:Scripts = $Scripts
 
 if (!(Test-Path variable:backupHome)) {
-    new-variable -name backupHome -value "$doc\PowerShell\profileBackup" `
+    new-variable -name backupHome -value "$doc\WindowsPowerShell\profileBackup" `
         -Description "Folder for profile backups. Profile created" `
         -Option ReadOnly -Scope "Global"
 }
@@ -439,8 +443,10 @@ function RecreateLinksInteractive {
 	}
 }
 
-if ($IsNonInteractive -eq $false) {
+if ($isNonInteractive -eq $false) {
     Import-Module -Name $Modules\AutoComplete.psm1 -DisableNameChecking -Force
     refreshenv | out-null
     oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/json.omp.json" | Invoke-Expression | out-null
 }
+
+if ($env:TERM_PROGRAM -eq "kiro") { . "$(kiro --locate-shell-integration-path pwsh)" }

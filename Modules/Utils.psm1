@@ -226,7 +226,7 @@ function Update-NpmDependencies {
         return
     }
 
-    Write-Host "Updating dependencies using $PackageManager..." -ForegroundColor Blue
+    Write-Host "- Updating dependencies using $PackageManager..." -ForegroundColor Blue
 
     # Update regular dependencies
     if ($hasDependencies) {
@@ -260,7 +260,7 @@ function Update-NpmDependencies {
         }
     }
 
-    Write-Host "Dependencies updated successfully!" -ForegroundColor Green
+    Write-Host "- Dependencies updated successfully!" -ForegroundColor Green
 
     switch ($PackageManager) {
         'npm' { npm install }
