@@ -141,6 +141,32 @@ function Install-KeypirinhaSettings {
     Get-GitHubSubFolderOrFile -gitUrl "https://github.com/falleng0d/WindowsPowerShell" -repoPathToExtract "Scripts/Keypirinha" -destPath $keypirinhaPath
 }
 
+function Install-PicPickSettings {
+    if (-not (Confirm-Step "Install PicPick settings")) {
+        Write-Output "Skipping PicPick settings installation..."
+        return
+    }
+
+    $picPickPath = Join-Path $env:APPDATA "picpick"
+    if (Test-Path $picPickPath) {
+        $shouldReplace = $true
+        if (-not $NonInteractive) {
+            $choice = Read-Host "PicPick settings already exist at '$picPickPath'. Replace them? (y/N)"
+            $shouldReplace = $choice.ToLower() -eq 'y'
+        }
+
+        if (-not $shouldReplace) {
+            Write-Output "Keeping existing PicPick settings."
+            return
+        }
+
+        Remove-Item -Path $picPickPath -Recurse -Force
+    }
+
+    New-Item -ItemType Directory -Path $picPickPath -Force | Out-Null
+    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/falleng0d/WindowsPowerShell" -repoPathToExtract "Scripts/PicPick" -destPath $picPickPath
+}
+
 function Install-SmoothScroll {
     $smoothScrollInstallRoot = Join-Path $env:LOCALAPPDATA "SmoothScroll"
     $smoothScrollExe = Get-ChildItem -Path $smoothScrollInstallRoot -Filter "SmoothScroll.exe" -Recurse -File -ErrorAction SilentlyContinue |
