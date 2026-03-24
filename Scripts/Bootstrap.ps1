@@ -79,7 +79,7 @@ function Install-RequiredApps {
         return
     }
 
-    choco install git oh-my-posh ripgrep make jq yq tldr
+    choco install git oh-my-posh ripgrep make jq yq tldr fzf
     winget install --id GitHub.cli --accept-source-agreements
 }
 

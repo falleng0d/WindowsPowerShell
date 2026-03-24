@@ -61,7 +61,8 @@ function Install-RequiredApps {
         return
     }
 
-    choco install git oh-my-posh ripgrep make jq yq tldr vscode JetbrainsMono
+    choco install git oh-my-posh ripgrep make jq yq rg fzf tldr vscode JetbrainsMono `
+        nerd-fonts-JetBrainsMono
     winget install --id GitHub.cli --accept-source-agreements
 }
 
