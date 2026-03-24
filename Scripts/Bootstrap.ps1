@@ -1,10 +1,15 @@
 #Requires -RunAsAdministrator
+# $env:NONINTERACTIVE = "true"; irm https://raw.githubusercontent.com/falleng0d/WindowsPowerShell/refs/heads/PowerShell7/Scripts/Bootstrap.ps1 | iex
 
 [CmdletBinding()]
 param(
     [Parameter()]
     [switch]$NonInteractive = $false
 )
+
+if ($env:NONINTERACTIVE -eq "true") {
+    $NonInteractive = $true
+}
 
 function Confirm-Step {
     param(
@@ -258,10 +263,14 @@ Assert-Administrator
 
 Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
-Install-Chocolatey
 Install-WinGetModule
-Install-Profile
+Install-Chocolatey
+
+Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1
+refreshenv
+
 Install-RequiredApps
+Install-Profile
 Install-OpenSSH
 Configure-SSHService
 Configure-SSHFirewallRule
