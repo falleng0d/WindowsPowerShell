@@ -72,14 +72,13 @@ function Install-RequiredApps {
         return
     }
 
-    choco install -y git oh-my-posh ripgrep make jq yq fzf tldr vscode winrar `
+    choco install git oh-my-posh ripgrep make jq yq fzf tldr vscode winrar `
         winscp windirstat vlc vagrant `
         unzip terraform rustdesk xyplorer mobaxterm notepad4 LinkShellExtension Lazydocker `
         lazygit klogg keypirinha gimp gh firefox grep go jcpicker jnv just ffmpeg everything `
-        dbeaver deno dngrep bun bat awscli awk autohotkey 1password docker-desktop ctop `
-        tailscale speedcrunch rsync restic systeminformer plantuml powershell-core powertoys `
-        nvs mitmproxy libreoffice-fresh
-    choco install -y roboto.font JetbrainsMono nerd-fonts-JetBrainsMono opensans `
+        dbeaver deno dngrep bun bat awscli awk autohotkey ctop rsync `
+        restic systeminformer plantuml powershell-core powertoys mitmproxy
+    choco install roboto.font JetbrainsMono nerd-fonts-JetBrainsMono opensans `
         fantasque-sans.font Inconsolata
 }
 
@@ -89,8 +88,68 @@ function Install-Extras {
         return
     }
 
-    choco install -y
-    winget install --accept-source-agreements Canva.Affinity JetBrains.Toolbox ntwind.windowspace
+    choco install libreoffice-fresh 1password docker-desktop tailscale speedcrunch
+    winget install --accept-source-agreements Canva.Affinity JetBrains.Toolbox `
+        ntwind.windowspace
+}
+
+function Install-Node {
+    if (-not (Confirm-Step "Install Node.js")) {
+        Write-Output "Skipping Node.js installation..."
+        return
+    }
+
+    choco install nvs
+    nvs add 22
+    nvs add 24
+    nvs link 24
+}
+
+function Install-NodePackages {
+    if (-not (Confirm-Step "Install global Node.js packages (npm, pnpm, bun)")) {
+        Write-Output "Skipping global Node.js packages installation..."
+        return
+    }
+
+    npm install -g npm@latest
+    npm install -g pnpm yarn npm opencode-ai@latest @kilocode/cli@latest `
+        typescript-language-server typescript ts-node tsx prettier `
+        rev-dep lnai tailwindcss/language-server@latest @augmentcode/auggie `
+        @openai/codex @google/gemini-cli vercel next
+}
+
+function Install-Pyenv {
+    if (-not (Confirm-Step "Install pyenv-win")) {
+        Write-Output "Skipping pyenv-win installation..."
+        return
+    }
+
+    Invoke-WebRequest -UseBasicParsing -Uri `
+        "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" `
+         -OutFile "./install-pyenv-win.ps1"
+    & "./install-pyenv-win.ps1"
+    pyenv update
+}
+
+function Install-Python {
+    if (-not (Confirm-Step "Install Python versions with pyenv")) {
+        Write-Output "Skipping Python installation..."
+        return
+    }
+
+    pyenv install 3.12
+    pyenv install 3.14
+    pyenv global 3.14
+}
+
+function Install-PythonPackages {
+    if (-not (Confirm-Step "Install global Python packages (pipx)")) {
+        Write-Output "Skipping global Python packages installation..."
+        return
+    }
+
+    pip install pyright pylint black isort flake8 mypy autopep8 pipenv poetry
+        ruff uv setuptools
 }
 
 function Install-WindowsTerminal {
@@ -152,6 +211,14 @@ Set-UnrestrictedExecutionPolicy
 
 Install-VcRedistributables
 Install-WindowsTerminal
+
+Install-Node
+Install-NodePackages
+
+Install-Pyenv
+Install-Python
+Install-PythonPackages
+
 Install-RequiredApps
 Install-Extras
 
