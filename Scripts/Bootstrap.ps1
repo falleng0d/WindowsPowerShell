@@ -3,18 +3,20 @@
 [CmdletBinding()]
 param(
     [Parameter()]
-    [switch]$AskBeforeExecuting
+    [switch]$NonInteractive = $false
 )
 
 function Confirm-Step {
     param(
         [string]$StepName
     )
-    if ($AskBeforeExecuting) {
-        $choice = Read-Host "Do you want to execute '$StepName'? (Y/n)"
-        return $choice -eq '' -or $choice.ToLower() -eq 'y'
+
+    if ($NonInteractive) {
+        return $true
     }
-    return $true
+
+    $choice = Read-Host "Do you want to execute '$StepName'? (Y/n)"
+        return $choice -eq '' -or $choice.ToLower() -eq 'y'
 }
 
 function Set-UnrestrictedExecutionPolicy {
@@ -172,6 +174,27 @@ function Disable-PowerShellTelemetry {
     }
 }
 
+function Install-WinGetModule {
+    if (-not (Confirm-Step "Install WinGet PowerShell Module")) {
+        Write-Output "Skipping WinGet PowerShell module installation..."
+        return
+    }
+
+    Write-Host "Installing WinGet PowerShell module from PSGallery..."
+    if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+        Write-Host "Installing NuGet package provider..."
+        Install-PackageProvider -Name NuGet -Force | Out-Null
+    }
+    if (-not (Get-Module -Name Microsoft.WinGet.Client -ListAvailable)) {
+        Write-Host "Installing WinGet PowerShell module..."
+        Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery | Out-Null
+    }
+    Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
+    Repair-WinGetPackageManager -AllUsers
+    Write-Host "Done."
+}
+
+
 function Assert-Administrator {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -185,7 +208,7 @@ function Assert-Administrator {
 
 # Main execution flow
 Write-Output "Starting system bootstrap process..."
-if ($AskBeforeExecuting) {
+if (-not $NonInteractive) {
     Write-Output "Interactive mode enabled - you will be asked before each step."
 }
 
@@ -195,6 +218,7 @@ Assert-Administrator
 Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
 Install-Chocolatey
+Install-WinGetModule
 Install-RequiredApps
 Install-OpenSSH
 Configure-SSHService
