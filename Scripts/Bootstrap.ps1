@@ -256,7 +256,13 @@ function Install-ProfileModules {
 
     Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $lazyAdminModulePath
 
-    . ([Scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1"))) | Out-Null
+    $optimizePowerShellStartupScript = (New-Object System.Net.WebClient).DownloadString(
+            "https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1")
+    $optimizePowerShellStartupScript = $optimizePowerShellStartupScript `
+        -replace 'Write-Host -Object "Press any key.*"\r?\n', ''
+    $optimizePowerShellStartupScript = $optimizePowerShellStartupScript `
+        -replace '\[void\]\$host\.UI\.RawUI\.ReadKey\("NoEcho,IncludeKeyDown"\)', ''
+    . ([Scriptblock]::Create($optimizePowerShellStartupScript)) | Out-Null
 }
 
 # Main execution flow
