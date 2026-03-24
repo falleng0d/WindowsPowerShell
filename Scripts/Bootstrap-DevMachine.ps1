@@ -61,8 +61,11 @@ function Install-RequiredApps {
         return
     }
 
-    choco install git oh-my-posh ripgrep make jq yq rg fzf tldr vscode JetbrainsMono `
-        nerd-fonts-JetBrainsMono
+    choco install -y git oh-my-posh ripgrep make jq yq fzf tldr vscode JetbrainsMono `
+        nerd-fonts-JetBrainsMono winrar winscp windirstat vlc vcredist-all vagrant `
+        unzip terraform rustdesk xyplorer mobaxterm notepad4 LinkShellExtension Lazydocker `
+        lazygit klogg keypirinha gimp gh firefox grep go jcpicker jnv just ffmpeg everything `
+        dbeaver deno dngrep bun bat awscli awk autohotkey 1password docker-desktop ctop
     winget install --id GitHub.cli --accept-source-agreements
 }
 
