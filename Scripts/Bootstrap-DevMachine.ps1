@@ -56,6 +56,11 @@ function Set-UnrestrictedExecutionPolicy {
 }
 
 function Install-VcRedistributables {
+    if (-not (Confirm-Step "Install Visual C++ Redistributables")) {
+        Write-Output "Skipping Visual C++ Redistributables installation..."
+        return
+    }
+
     Install-Module -Name VcRedist -RequiredVersion 4.0.460 -Force
     Import-Module -Name VcRedist
     Save-VcRedist -VcList (Get-VcList -Release (2015, 2017, 2019, 2022))
@@ -121,6 +126,15 @@ function Install-KeypirinhaSettings {
 }
 
 function Install-SmoothScroll {
+    $smoothScrollInstallRoot = Join-Path $env:LOCALAPPDATA "SmoothScroll"
+    $smoothScrollExe = Get-ChildItem -Path $smoothScrollInstallRoot -Filter "SmoothScroll.exe" -Recurse -File -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+    if ($smoothScrollExe) {
+        Write-Output "SmoothScroll is already installed."
+        return
+    }
+
     if (-not (Confirm-Step "Install SmoothScroll")) {
         Write-Output "Skipping SmoothScroll installation..."
         return
@@ -135,6 +149,12 @@ function Install-SmoothScroll {
 }
 
 function Install-HandyPlus {
+    $handyPlusExe = Join-Path $env:LOCALAPPDATA "HandyPlus\handy.exe"
+    if (Test-Path $handyPlusExe) {
+        Write-Output "HandyPlus is already installed."
+        return
+    }
+
     if (-not (Confirm-Step "Install HandyPlus")) {
         Write-Output "Skipping HandyPlus installation..."
         return
