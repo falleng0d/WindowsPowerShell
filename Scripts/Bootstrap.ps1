@@ -94,6 +94,8 @@ function Configure-SSHService {
     if ($sshd.Status -ne 'Running') {
         Write-Output "Starting SSH service..."
         Start-Service sshd
+    } else {
+        Write-Output "SSH service is already running."
     }
 
     if ($sshd.StartType -ne 'Automatic') {
@@ -144,6 +146,9 @@ function Install-WindowsDebloater {
         Set-Location ~/Downloads
         git clone https://github.com/Sycnex/Windows10Debloater
         Set-Location Windows10Debloater
+    } else {
+        Write-Output "Windows10Debloater already exists."
+        Set-Location $debloaterPath
     }
     Write-Output "Starting Windows10DebloaterGUI..."
     .\Windows10DebloaterGUI.ps1
@@ -180,18 +185,21 @@ function Install-WinGetModule {
         return
     }
 
-    Write-Host "Installing WinGet PowerShell module from PSGallery..."
-    if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
-        Write-Host "Installing NuGet package provider..."
-        Install-PackageProvider -Name NuGet -Force | Out-Null
-    }
     if (-not (Get-Module -Name Microsoft.WinGet.Client -ListAvailable)) {
+        if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+            Write-Host "Installing NuGet package provider..."
+            Install-PackageProvider -Name NuGet -Force | Out-Null
+        } else {
+            Write-Host "NuGet package provider is already installed."
+        }
+
         Write-Host "Installing WinGet PowerShell module..."
         Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery | Out-Null
+        Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
+        Repair-WinGetPackageManager -AllUsers
+    } else {
+        Write-Host "WinGet PowerShell module is already installed."
     }
-    Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
-    Repair-WinGetPackageManager -AllUsers
-    Write-Host "Done."
 }
 
 
@@ -204,6 +212,39 @@ function Assert-Administrator {
         exit 1
     }
     Write-Output "Running with Administrator privileges."
+}
+
+
+function Install-Profile {
+    if (-not (Confirm-Step "Install PowerShell Profile")) {
+        Write-Output "Skipping PowerShell profile installation..."
+        return
+    }
+
+    Write-Output "Installing PowerShell profile..."
+    $documentsDir = [Environment]::GetFolderPath("MyDocuments")
+    $profilePath = "$documentsDir\WindowsPowerShell"
+
+    if (Test-Path $profilePath) {
+        Write-Output "Existing PowerShell profile found. Moving to trash..."
+        Remove-Item -Path $profilePath -Recurse -Force
+    } else {
+        Write-Output "No existing PowerShell profile found."
+    }
+
+    git clone https://github.com/falleng0d/WindowsPowerShell $profilePath
+
+    $powerShell7Path = "$documentsDir\PowerShell"
+    if (Test-Path $powerShell7Path) {
+        Write-Output "Existing PowerShell 7 profile found. Moving to trash..."
+        Remove-Item -Path $powerShell7Path -Recurse -Force
+    } else {
+        Write-Output "No existing PowerShell 7 profile found."
+    }
+
+    cd $profilePath
+    git worktree add -b PowerShell7 $powerShell7Path
+    cd -
 }
 
 # Main execution flow
@@ -219,6 +260,7 @@ Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
 Install-Chocolatey
 Install-WinGetModule
+Install-Profile
 Install-RequiredApps
 Install-OpenSSH
 Configure-SSHService
