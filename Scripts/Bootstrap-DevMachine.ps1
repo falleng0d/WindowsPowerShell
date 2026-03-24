@@ -83,8 +83,8 @@ function Install-RequiredApps {
 }
 
 function Install-Extras {
-    if (-not (Confirm-Step "Install Required Apps (Git, VSCode)")) {
-        Write-Output "Skipping required apps installation..."
+    if (-not (Confirm-Step "Install Extra Apps (1Password, Tailscale, etc.)")) {
+        Write-Output "Skipping extra apps installation..."
         return
     }
 
@@ -147,8 +147,12 @@ function Install-Python {
     }
 
     pyenv install 3.12
+    pyenv global 3.12
+    python -m pip install --upgrade pip
+
     pyenv install 3.14
     pyenv global 3.14
+    python -m pip install --upgrade pip
 }
 
 function Install-PythonPackages {
@@ -157,7 +161,7 @@ function Install-PythonPackages {
         return
     }
 
-    pip install pyright pylint black isort flake8 mypy autopep8 pipenv poetry
+    pip install pyright pylint black isort flake8 mypy autopep8 pipenv poetry `
         ruff uv setuptools
 }
 
