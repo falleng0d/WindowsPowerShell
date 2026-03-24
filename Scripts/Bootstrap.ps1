@@ -230,8 +230,6 @@ function Install-Profile {
     git fetch origin PowerShell7
     git worktree add -b PowerShell7 $powerShell7Path
     cd $pwd
-
-    . $profile
 }
 
 function Install-ProfileModules {
@@ -278,8 +276,10 @@ Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1
 Install-RequiredApps
 refreshenv
 
-Install-ProfileModules
 Install-Profile
+Install-ProfileModules
+
+. $profile
 
 Install-OpenSSH
 Configure-SSHService

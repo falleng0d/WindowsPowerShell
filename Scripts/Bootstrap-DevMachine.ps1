@@ -61,7 +61,7 @@ function Install-RequiredApps {
         return
     }
 
-    choco install git oh-my-posh ripgrep make jq yq tldr
+    choco install git oh-my-posh ripgrep make jq yq tldr vscode github-cli
     winget upgrade --id GitHub.cli
 }
 
