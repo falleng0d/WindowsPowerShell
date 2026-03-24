@@ -143,40 +143,6 @@ function Configure-SSHFirewallRule {
     }
 }
 
-function Install-WindowsTerminal {
-    if (-not (Confirm-Step "Install Windows Terminal")) {
-        Write-Output "Skipping Windows Terminal installation..."
-        return
-    }
-
-    if (!(Get-Command wt -ErrorAction SilentlyContinue)) {
-        Write-Output "Installing Windows Terminal..."
-        winget install Microsoft.WindowsTerminal --accept-source-agreements
-    } else {
-        Write-Output "Windows Terminal is already installed."
-    }
-}
-
-function Install-WindowsDebloater {
-    if (-not (Confirm-Step "Install and Run Windows10Debloater")) {
-        Write-Output "Skipping Windows10Debloater..."
-        return
-    }
-
-    $debloaterPath = "~/Downloads/Windows10Debloater"
-    if (!(Test-Path $debloaterPath)) {
-        Write-Output "Downloading Windows10Debloater..."
-        Set-Location ~/Downloads
-        git clone https://github.com/Sycnex/Windows10Debloater
-        Set-Location Windows10Debloater
-    } else {
-        Write-Output "Windows10Debloater already exists."
-        Set-Location $debloaterPath
-    }
-    Write-Output "Starting Windows10DebloaterGUI..."
-    .\Windows10DebloaterGUI.ps1
-}
-
 function Disable-PowerShellTelemetry {
     if (-not (Confirm-Step "Disable PowerShell Telemetry")) {
         Write-Output "Skipping PowerShell telemetry disablement..."
@@ -224,7 +190,6 @@ function Install-WinGetModule {
     }
 }
 
-
 function Assert-Administrator {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -235,7 +200,6 @@ function Assert-Administrator {
     }
     Write-Output "Running with Administrator privileges."
 }
-
 
 function Install-Profile {
     if (-not (Confirm-Step "Install PowerShell Profile")) {
@@ -322,8 +286,5 @@ Install-Profile
 Install-OpenSSH
 Configure-SSHService
 Configure-SSHFirewallRule
-
-Install-WindowsTerminal
-Install-WindowsDebloater
 
 Write-Output "System bootstrap process completed."
