@@ -191,6 +191,21 @@ function Install-PicPickSettings {
 
     New-Item -ItemType Directory -Path $picPickPath -Force | Out-Null
     Get-GitHubSubFolderOrFile -gitUrl "https://github.com/falleng0d/WindowsPowerShell" -repoPathToExtract "Scripts/PicPick" -destPath $picPickPath
+
+    $jinjaData = @{
+        env = @{
+            USERPROFILE = $env:USERPROFILE
+        }
+    }
+
+    Get-ChildItem -Path $picPickPath -Filter "*.j2" -File | ForEach-Object {
+        $templateContent = Get-Content -Path $_.FullName -Raw
+        $renderedContent = Invoke-Jinja -Template $templateContent -Data $jinjaData
+        $outputPath = $_.FullName -replace '\.j2$', ''
+        [System.IO.File]::WriteAllText($outputPath, $renderedContent)
+        Remove-Item -Path $_.FullName -Force
+        Write-Output "Rendered template: $outputPath"
+    }
 }
 
 function Install-SmoothScroll {
@@ -383,6 +398,8 @@ Install-RequiredApps
 Install-Extras
 Install-SmoothScroll
 Install-HandyPlus
+
+Install-Module -Name PSJinja
 
 Install-KeypirinhaSettings
 Install-PicPickSettings
