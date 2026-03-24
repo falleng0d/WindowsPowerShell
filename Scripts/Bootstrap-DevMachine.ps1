@@ -89,7 +89,7 @@ function Install-Extras {
     }
 
     choco install libreoffice-fresh 1password docker-desktop tailscale speedcrunch `
-        ditto xyplorer keypirinha cursor picpick
+        ditto xyplorer keypirinha
     winget install --accept-source-agreements Canva.Affinity JetBrains.Toolbox `
         ntwind.windowspace NGWIN.PicPick
 }
@@ -117,7 +117,6 @@ function Install-KeypirinhaSettings {
     }
 
     New-Item -ItemType Directory -Path $keypirinhaPath -Force | Out-Null
-    Import-Module "$PSScriptRoot\..\Modules\Get-GitHubSubFolderOrFile\Get-GitHubSubFolderOrFile.psm1"
     Get-GitHubSubFolderOrFile -gitUrl "https://github.com/falleng0d/WindowsPowerShell" -repoPathToExtract "Scripts/Keypirinha" -destPath $keypirinhaPath
 }
 
@@ -132,7 +131,7 @@ function Install-SmoothScroll {
     Invoke-WebRequest -Uri "https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe" -OutFile $installerPath
 
     Write-Output "Launching SmoothScroll installer..."
-    Start-Process -FilePath $installerPath -ArgumentList "/S" -Wait
+    Start-Process -FilePath $installerPath -ArgumentList "/S"
 }
 
 function Install-HandyPlus {
