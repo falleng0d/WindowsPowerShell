@@ -242,6 +242,8 @@ function Install-ProfileModules {
 
     Write-Output "Installing PowerShell profile modules..."
 
+    Set-PSRepository PSGallery -InstallationPolicy Trusted
+
     Install-Module Pscx -Scope CurrentUser -AllowClobber
     Install-Module PSReadLine -RequiredVersion 2.1.0
     Install-Module PSEverything
@@ -266,7 +268,6 @@ if (-not $NonInteractive) {
 # Verify administrator privileges before proceeding
 Assert-Administrator
 
-Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
 
