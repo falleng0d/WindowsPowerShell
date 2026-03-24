@@ -55,6 +55,17 @@ function Set-UnrestrictedExecutionPolicy {
     }
 }
 
+function Install-VcRedistributables {
+    Install-Module -Name VcRedist -RequiredVersion 4.0.460 -Force
+    Import-Module -Name VcRedist
+    Save-VcRedist -VcList (Get-VcList -Release (2015, 2017, 2019, 2022))
+    Install-VcRedist -VcList (Get-VcList -Release (2015, 2017, 2019, 2022))
+    Remove-Item -Recurse 2015
+    Remove-Item -Recurse 2017
+    Remove-Item -Recurse 2019
+    Remove-Item -Recurse 2022
+}
+
 function Install-RequiredApps {
     if (-not (Confirm-Step "Install Required Apps (Git, VSCode)")) {
         Write-Output "Skipping required apps installation..."
@@ -62,7 +73,7 @@ function Install-RequiredApps {
     }
 
     choco install -y git oh-my-posh ripgrep make jq yq fzf tldr vscode winrar `
-        winscp windirstat vlc vcredist-all vagrant `
+        winscp windirstat vlc vagrant `
         unzip terraform rustdesk xyplorer mobaxterm notepad4 LinkShellExtension Lazydocker `
         lazygit klogg keypirinha gimp gh firefox grep go jcpicker jnv just ffmpeg everything `
         dbeaver deno dngrep bun bat awscli awk autohotkey 1password docker-desktop ctop `
@@ -139,6 +150,7 @@ Assert-Administrator
 Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
 
+Install-VcRedistributables
 Install-WindowsTerminal
 Install-RequiredApps
 Install-Extras
