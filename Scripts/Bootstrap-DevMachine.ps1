@@ -62,7 +62,7 @@ function Install-RequiredApps {
     }
 
     choco install git oh-my-posh ripgrep make jq yq tldr vscode github-cli
-    winget upgrade --id GitHub.cli
+    winget install --id GitHub.cli --accept-source-agreements
 }
 
 function Install-WindowsTerminal {
