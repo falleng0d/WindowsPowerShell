@@ -99,6 +99,29 @@ function Install-Extras {
     Start-Process -FilePath "$env:TEMP\SmoothScroll_Setup.exe" -ArgumentList "/S" -Wait
 }
 
+function Install-HandyPlus {
+    if (-not (Confirm-Step "Install HandyPlus")) {
+        Write-Output "Skipping HandyPlus installation..."
+        return
+    }
+
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/falleng0d/HandyPlus/releases/latest"
+    $asset = $release.assets | Where-Object {
+        $_.name -match '^HandyPlus_.*_x64-setup\.exe$'
+    } | Select-Object -First 1
+
+    if (-not $asset) {
+        throw "Could not find a HandyPlus x64 installer asset in the latest release."
+    }
+
+    $installerPath = Join-Path $env:TEMP $asset.name
+    Write-Output "Downloading HandyPlus installer $($asset.name)..."
+    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $installerPath
+
+    Write-Output "Launching HandyPlus installer..."
+    Start-Process -FilePath $installerPath -Wait
+}
+
 function Install-Node {
     if (-not (Confirm-Step "Install Node.js")) {
         Write-Output "Skipping Node.js installation..."
@@ -234,6 +257,7 @@ Install-PythonPackages
 
 Install-RequiredApps
 Install-Extras
+Install-HandyPlus
 
 Install-WindowsDebloater
 
