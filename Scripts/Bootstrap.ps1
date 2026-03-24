@@ -11,6 +11,23 @@ if ($env:NONINTERACTIVE -eq "true") {
     $NonInteractive = $true
 }
 
+function Remove-ItemToRecycleBin($Path) {
+    Add-Type -AssemblyName Microsoft.VisualBasic
+
+    $item = Get-Item -Path $Path -ErrorAction SilentlyContinue
+    if ($item -eq $null) {
+        Write-Error("'{0}' not found" -f $Path)
+    } else {
+        $fullpath=$item.FullName
+        Write-Verbose ("Moving '{0}' to the Recycle Bin" -f $fullpath)
+        if (Test-Path -Path $fullpath -PathType Container) {
+            [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($fullpath,'OnlyErrorDialogs','SendToRecycleBin')
+        } else {
+            [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($fullpath,'OnlyErrorDialogs','SendToRecycleBin')
+        }
+    }
+}
+
 function Confirm-Step {
     param(
         [string]$StepName
@@ -231,7 +248,7 @@ function Install-Profile {
 
     if (Test-Path $profilePath) {
         Write-Output "Existing PowerShell profile found. Moving to trash..."
-        Remove-Item -Path $profilePath -Recurse -Force
+        Remove-ItemToRecycleBin -Path $profilePath
     } else {
         Write-Output "No existing PowerShell profile found."
     }
@@ -241,7 +258,7 @@ function Install-Profile {
     $powerShell7Path = "$documentsDir\PowerShell"
     if (Test-Path $powerShell7Path) {
         Write-Output "Existing PowerShell 7 profile found. Moving to trash..."
-        Remove-Item -Path $powerShell7Path -Recurse -Force
+        Remove-ItemToRecycleBin -Path $powerShell7Path
     } else {
         Write-Output "No existing PowerShell 7 profile found."
     }
