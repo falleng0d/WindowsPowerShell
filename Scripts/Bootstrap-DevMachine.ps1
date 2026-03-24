@@ -213,7 +213,7 @@ function Install-SmoothScroll {
     Invoke-WebRequest -Uri "https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe" -OutFile $installerPath
 
     Write-Output "Launching SmoothScroll installer..."
-    Start-Process -FilePath $installerPath -Wait -ArgumentList "/SILENT"
+    Start-Process -FilePath $installerPath -ArgumentList "/SILENT"
 }
 
 function Install-HandyPlus {
