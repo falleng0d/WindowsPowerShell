@@ -215,10 +215,10 @@ Set-UnrestrictedExecutionPolicy
 Install-VcRedistributables
 Install-WindowsTerminal
 
-Install-Node
+Install-Node; refreshenv
 Install-NodePackages
 
-Install-Pyenv
+Install-Pyenv; refreshenv
 Install-Python
 Install-PythonPackages
 
