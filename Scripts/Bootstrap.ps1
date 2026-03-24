@@ -191,7 +191,7 @@ function Install-WinGetModule {
     }
 
     if (-not (Get-Module -Name Microsoft.WinGet.Client -ListAvailable)) {
-        if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+        if (-not (Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue)) {
             Write-Host "Installing NuGet package provider..."
             Install-PackageProvider -Name NuGet -Force -Confirm:$False | Out-Null
         } else {
@@ -250,6 +250,33 @@ function Install-Profile {
     cd $profilePath
     git worktree add -b PowerShell7 $powerShell7Path
     cd -
+
+    . $profile
+}
+
+function Install-ProfileModules {
+    if (-not (Confirm-Step "Install PowerShell Profile Modules")) {
+        Write-Output "Skipping PowerShell profile modules installation..."
+        return
+    }
+
+    Write-Output "Installing PowerShell profile modules..."
+
+    Install-Module Pscx -Scope CurrentUser -AllowClobber
+    Install-Module PSReadLine -RequiredVersion 2.1.0
+    Install-Module PSEverything
+    Install-Module -Name PSFzf
+    Install-Module -Name Recycle
+    Install-Module posh-git -Force
+    Import-Module Get-GitHubSubFolderOrFile
+
+    Invoke-RestMethod get.scoop.sh | Invoke-Expression
+
+    $modulesPath = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules\"
+
+    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $modulesPath
+
+    . ([Scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1")))
 }
 
 # Main execution flow
@@ -273,6 +300,7 @@ Install-RequiredApps
 refreshenv
 
 Install-Profile
+Install-ProfileModules
 
 Install-OpenSSH
 Configure-SSHService
