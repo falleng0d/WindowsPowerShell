@@ -79,8 +79,8 @@ function Install-RequiredApps {
         return
     }
 
-    choco install git oh-my-posh ripgrep make jq yq tldr
-    winget upgrade --id GitHub.cli
+    choco install git oh-my-posh ripgrep make jq yq tldr fzf
+    winget install --id GitHub.cli --accept-source-agreements
 }
 
 function Install-OpenSSH {
@@ -230,8 +230,6 @@ function Install-Profile {
     git fetch origin PowerShell7
     git worktree add -b PowerShell7 $powerShell7Path
     cd $pwd
-
-    . $profile
 }
 
 function Install-ProfileModules {
@@ -253,10 +251,18 @@ function Install-ProfileModules {
     Invoke-RestMethod get.scoop.sh | Invoke-Expression
 
     $modulesPath = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules\"
+    $lazyAdminModulePath = Join-Path $modulesPath "LazyAdmin"
+    mkdir -p $lazyAdminModulePath
 
-    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $modulesPath
+    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $lazyAdminModulePath
 
-    #. ([Scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1")))
+    $optimizePowerShellStartupScript = (New-Object System.Net.WebClient).DownloadString(
+            "https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1")
+    $optimizePowerShellStartupScript = $optimizePowerShellStartupScript `
+        -replace 'Write-Host -Object "Press any key.*"\r?\n', ''
+    $optimizePowerShellStartupScript = $optimizePowerShellStartupScript `
+        -replace '\[void\]\$host\.UI\.RawUI\.ReadKey\("NoEcho,IncludeKeyDown"\)', ''
+    . ([Scriptblock]::Create($optimizePowerShellStartupScript)) | Out-Null
 }
 
 # Main execution flow
@@ -278,8 +284,10 @@ Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1
 Install-RequiredApps
 refreshenv
 
-Install-ProfileModules
 Install-Profile
+Install-ProfileModules
+
+. $profile
 
 Install-OpenSSH
 Configure-SSHService
