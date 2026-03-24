@@ -77,7 +77,7 @@ function Install-RequiredApps {
         unzip terraform rustdesk xyplorer mobaxterm notepad4 LinkShellExtension Lazydocker `
         lazygit klogg keypirinha gimp gh firefox grep go jcpicker jnv just ffmpeg everything `
         dbeaver deno dngrep bun bat awscli awk autohotkey 1password docker-desktop ctop `
-        tailscale speedcrunch rsync restic processhacker plantuml powershell-core powertoys `
+        tailscale speedcrunch rsync restic systeminformer plantuml powershell-core powertoys `
         nvs mitmproxy libreoffice-fresh
     choco install -y roboto.font JetbrainsMono nerd-fonts-JetBrainsMono opensans `
         fantasque-sans.font Inconsolata
