@@ -161,7 +161,7 @@ function Install-SmoothScroll {
     Invoke-WebRequest -Uri "https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe" -OutFile $installerPath
 
     Write-Output "Launching SmoothScroll installer..."
-    Start-Process -FilePath $installerPath -ArgumentList "/S"
+    Start-Process -FilePath $installerPath -Wait -ArgumentList "/SILENT"
 }
 
 function Install-HandyPlus {
@@ -190,7 +190,7 @@ function Install-HandyPlus {
     Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $installerPath
 
     Write-Output "Launching HandyPlus installer..."
-    Start-Process -FilePath $installerPath -Wait
+    Start-Process -FilePath $installerPath -Wait -ArgumentList "/S"
 }
 
 function Install-Node {
