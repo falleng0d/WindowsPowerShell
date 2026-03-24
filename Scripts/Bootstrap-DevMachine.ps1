@@ -99,6 +99,33 @@ function Install-Extras {
     Start-Process -FilePath "$env:TEMP\SmoothScroll_Setup.exe" -ArgumentList "/S" -Wait
 }
 
+function Install-KeypirinhaSettings {
+    if (-not (Confirm-Step "Install Keypirinha settings")) {
+        Write-Output "Skipping Keypirinha settings installation..."
+        return
+    }
+
+    $keypirinhaPath = Join-Path $env:APPDATA "Keypirinha"
+    if (Test-Path $keypirinhaPath) {
+        $shouldReplace = $true
+        if (-not $NonInteractive) {
+            $choice = Read-Host "Keypirinha settings already exist at '$keypirinhaPath'. Replace them? (y/N)"
+            $shouldReplace = $choice.ToLower() -eq 'y'
+        }
+
+        if (-not $shouldReplace) {
+            Write-Output "Keeping existing Keypirinha settings."
+            return
+        }
+
+        Remove-Item -Path $keypirinhaPath -Recurse -Force
+    }
+
+    New-Item -ItemType Directory -Path $keypirinhaPath -Force | Out-Null
+    Import-Module "$PSScriptRoot\..\Modules\Get-GitHubSubFolderOrFile\Get-GitHubSubFolderOrFile.psm1"
+    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/falleng0d/WindowsPowerShell" -repoPathToExtract "Scripts/Keypirinha" -destPath $keypirinhaPath
+}
+
 function Install-HandyPlus {
     if (-not (Confirm-Step "Install HandyPlus")) {
         Write-Output "Skipping HandyPlus installation..."
@@ -179,7 +206,7 @@ function Install-Python {
 }
 
 function Install-PythonPackages {
-    if (-not (Confirm-Step "Install global Python packages (pipx)")) {
+    if (-not (Confirm-Step "Install global Python packages (pip)")) {
         Write-Output "Skipping global Python packages installation..."
         return
     }
@@ -244,6 +271,7 @@ Assert-Administrator
 
 Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
+refreshenv
 
 Install-VcRedistributables
 Install-WindowsTerminal
@@ -255,8 +283,9 @@ Install-Pyenv; refreshenv
 Install-Python
 Install-PythonPackages
 
-Install-RequiredApps
+#Install-RequiredApps
 Install-Extras
+Install-KeypirinhaSettings
 Install-HandyPlus
 
 Install-WindowsDebloater
