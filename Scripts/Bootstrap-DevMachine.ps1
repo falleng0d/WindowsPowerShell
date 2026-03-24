@@ -72,7 +72,7 @@ function Install-VcRedistributables {
 }
 
 function Install-RequiredApps {
-    if (-not (Confirm-Step "Install Required Apps (Git, VSCode)")) {
+    if (Confirm-Step "Install Required Apps (Git, VSCode)") {
         Write-Output "Skipping required apps installation..."
         return
     }
@@ -96,7 +96,7 @@ function Install-Extras {
     choco install libreoffice-fresh 1password docker-desktop tailscale speedcrunch `
         ditto xyplorer keypirinha
     winget install --accept-source-agreements Canva.Affinity JetBrains.Toolbox `
-        ntwind.windowspace NGWIN.PicPick
+        ntwind.windowspace NGWIN.PicPick MacType.MacType
 }
 
 function Clone-TaskSchedulerRepository {
@@ -113,6 +113,32 @@ function Clone-TaskSchedulerRepository {
 
     Write-Output "Cloning TaskScheduler repository to '$targetPath'..."
     git clone https://github.com/falleng0d/TaskScheduler $targetPath
+}
+
+function Install-MacTypeSettings {
+    if (-not (Confirm-Step "Install MacType settings")) {
+        Write-Output "Skipping MacType settings installation..."
+        return
+    }
+
+    $macTypePath = "C:\Program Files\MacType"
+    if (Test-Path $macTypePath) {
+        $shouldReplace = $true
+        if (-not $NonInteractive) {
+            $choice = Read-Host "MacType settings already exist at '$macTypePath'. Replace them? (y/N)"
+            $shouldReplace = $choice.ToLower() -eq 'y'
+        }
+
+        if (-not $shouldReplace) {
+            Write-Output "Keeping existing MacType settings."
+            return
+        }
+
+        Remove-Item -Path $macTypePath -Recurse -Force
+    }
+
+    New-Item -ItemType Directory -Path $macTypePath -Force | Out-Null
+    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/falleng0d/WindowsPowerShell" -repoPathToExtract "Scripts/MacType" -destPath $macTypePath
 }
 
 function Install-KeypirinhaSettings {
@@ -353,11 +379,16 @@ Install-Pyenv; refreshenv
 Install-Python
 Install-PythonPackages
 
-#Install-RequiredApps
+Install-RequiredApps
 Install-Extras
-Install-KeypirinhaSettings
 Install-SmoothScroll
 Install-HandyPlus
+
+Install-KeypirinhaSettings
+Install-PicPickSettings
+Install-MacTypeSettings
+
+keypirinha
 
 Clone-TaskSchedulerRepository
 
