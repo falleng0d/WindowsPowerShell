@@ -218,6 +218,7 @@ function Install-Profile {
         Write-Output "No existing PowerShell profile found."
     }
 
+    mkdir -p $profilePath
     git clone https://github.com/falleng0d/WindowsPowerShell $profilePath
 
     $powerShell7Path = "$documentsDir\PowerShell"
