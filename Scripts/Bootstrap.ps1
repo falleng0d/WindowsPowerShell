@@ -246,9 +246,10 @@ function Install-Profile {
         Write-Output "No existing PowerShell 7 profile found."
     }
 
+    $pwd = Get-Location
     cd $profilePath
     git worktree add -b PowerShell7 $powerShell7Path
-    cd -
+    cd $pwd
 
     . $profile
 }
@@ -265,8 +266,6 @@ function Install-ProfileModules {
     Install-Module PSReadLine -RequiredVersion 2.1.0
     Install-Module PSEverything
     Install-Module -Name PSFzf
-    Install-Module -Name Recycle
-    Install-Module posh-git -Force
     Import-Module Get-GitHubSubFolderOrFile
 
     Invoke-RestMethod get.scoop.sh | Invoke-Expression
