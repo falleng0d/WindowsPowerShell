@@ -314,8 +314,8 @@ Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1
 Install-RequiredApps
 refreshenv
 
-Install-Profile
 Install-ProfileModules
+Install-Profile
 
 Install-OpenSSH
 Configure-SSHService
