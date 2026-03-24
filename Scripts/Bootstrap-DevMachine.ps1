@@ -61,7 +61,7 @@ function Install-RequiredApps {
         return
     }
 
-    choco install git oh-my-posh ripgrep make jq yq tldr vscode github-cli
+    choco install git oh-my-posh ripgrep make jq yq tldr vscode JetbrainsMono
     winget install --id GitHub.cli --accept-source-agreements
 }
 
