@@ -80,6 +80,7 @@ function Install-RequiredApps {
     }
 
     choco install git oh-my-posh ripgrep make jq yq tldr
+    winget upgrade --id GitHub.cli
 }
 
 function Install-OpenSSH {
@@ -265,6 +266,7 @@ function Install-Profile {
 
     $pwd = Get-Location
     cd $profilePath
+    git fetch origin PowerShell7
     git worktree add -b PowerShell7 $powerShell7Path
     cd $pwd
 
