@@ -133,7 +133,7 @@ function Install-WindowsTerminal {
 
     if (!(Get-Command wt -ErrorAction SilentlyContinue)) {
         Write-Output "Installing Windows Terminal..."
-        winget install Microsoft.WindowsTerminal
+        winget install Microsoft.WindowsTerminal --accept-source-agreements
     } else {
         Write-Output "Windows Terminal is already installed."
     }
@@ -193,7 +193,7 @@ function Install-WinGetModule {
     if (-not (Get-Module -Name Microsoft.WinGet.Client -ListAvailable)) {
         if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
             Write-Host "Installing NuGet package provider..."
-            Install-PackageProvider -Name NuGet -Force | Out-Null
+            Install-PackageProvider -Name NuGet -Force -Confirm:$False | Out-Null
         } else {
             Write-Host "NuGet package provider is already installed."
         }
@@ -261,19 +261,23 @@ if (-not $NonInteractive) {
 # Verify administrator privileges before proceeding
 Assert-Administrator
 
+Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
+
 Install-WinGetModule
 Install-Chocolatey
 
 Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1
+Install-RequiredApps
 refreshenv
 
-Install-RequiredApps
 Install-Profile
+
 Install-OpenSSH
 Configure-SSHService
 Configure-SSHFirewallRule
+
 Install-WindowsTerminal
 Install-WindowsDebloater
 
