@@ -251,8 +251,10 @@ function Install-ProfileModules {
     Invoke-RestMethod get.scoop.sh | Invoke-Expression
 
     $modulesPath = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules\"
+    $lazyAdminModulePath = Join-Path $modulesPath "LazyAdmin"
+    mkdir -p $lazyAdminModulePath
 
-    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $modulesPath
+    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $lazyAdminModulePath
 
     #. ([Scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1")))
 }
