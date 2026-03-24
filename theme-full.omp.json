@@ -1,0 +1,91 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "blocks": [
+    {
+      "alignment": "left",
+      "segments": [
+        {
+          "foreground": "#F1FA8C",
+          "properties": {
+            "style": "folder"
+          },
+          "style": "diamond",
+          "template": "<#42E66C>\u2B22 </> <b>{{ .Path }}</b> ",
+          "type": "path"
+        },
+        {
+          "foreground": "#43CCEA",
+          "properties": {
+            "branch_icon": ""
+          },
+          "style": "diamond",
+          "template": "<#ffffff>\u26A1</><b> {{ .HEAD }}</b>",
+          "type": "git"
+        },
+        {
+          "foreground": "#ff0000",
+          "style": "diamond",
+          "template": "<#ff0000> \u25C9 </>",
+          "type": "text"
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "right",
+      "segments": [
+        {
+          "foreground": "#a9ffb4",
+          "style": "plain",
+          "type": "text"
+        },
+        {
+          "foreground": "#a9ffb4",
+          "properties": {
+            "style": "dallas",
+            "threshold": 0
+          },
+          "style": "diamond",
+          "template": " {{ .FormattedMs }}s ",
+          "type": "executiontime"
+        },
+        {
+          "properties": {
+            "root_icon": "\uf292 "
+          },
+          "style": "diamond",
+          "template": " \uf0e7 ",
+          "type": "root"
+        },
+        {
+          "foreground": "#81ff91",
+          "style": "diamond",
+          "template": "<#ffffff>\uf6dc</> <#ffffff>RAM:</> {{ (div ((sub .PhysicalTotalMemory .PhysicalFreeMemory)|float64) 1000000000.0) }}/{{ (div .PhysicalTotalMemory 1000000000.0) }}GB ",
+          "type": "sysinfo"
+        },
+        {
+          "foreground": "#81ff91",
+          "style": "diamond",
+          "template": "<#ffffff>\uf6dc</> <#ffffff>TIME:</> {{ .CurrentDate | date .Format }}",
+          "type": "time"
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "foreground": "#81ff91",
+          "style": "plain",
+          "template": ">",
+          "type": "text"
+        }
+      ],
+      "type": "prompt"
+    }
+  ],
+  "final_space": true,
+  "version": 2
+}

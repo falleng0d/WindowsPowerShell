@@ -8,7 +8,7 @@ param()
 Function Test-CommandExists {
     Param ($command)
 
-    if(Get-Command -ErrorAction Stop $command) {
+    if(Get-Command -ErrorAction SilentlyContinue $command) {
         return $true
     }
 }

@@ -1,20 +1,44 @@
 #Requires -RunAsAdministrator
+# $env:NONINTERACTIVE = "true"; irm https://raw.githubusercontent.com/falleng0d/WindowsPowerShell/refs/heads/PowerShell7/Scripts/Bootstrap.ps1 | iex
 
 [CmdletBinding()]
 param(
     [Parameter()]
-    [switch]$AskBeforeExecuting
+    [switch]$NonInteractive = $false
 )
+
+if ($env:NONINTERACTIVE -eq "true") {
+    $NonInteractive = $true
+}
+
+function Remove-ItemToRecycleBin($Path) {
+    Add-Type -AssemblyName Microsoft.VisualBasic
+
+    $item = Get-Item -Path $Path -ErrorAction SilentlyContinue
+    if ($item -eq $null) {
+        Write-Error("'{0}' not found" -f $Path)
+    } else {
+        $fullpath=$item.FullName
+        Write-Verbose ("Moving '{0}' to the Recycle Bin" -f $fullpath)
+        if (Test-Path -Path $fullpath -PathType Container) {
+            [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($fullpath,'OnlyErrorDialogs','SendToRecycleBin')
+        } else {
+            [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($fullpath,'OnlyErrorDialogs','SendToRecycleBin')
+        }
+    }
+}
 
 function Confirm-Step {
     param(
         [string]$StepName
     )
-    if ($AskBeforeExecuting) {
-        $choice = Read-Host "Do you want to execute '$StepName'? (Y/n)"
-        return $choice -eq '' -or $choice.ToLower() -eq 'y'
+
+    if ($NonInteractive) {
+        return $true
     }
-    return $true
+
+    $choice = Read-Host "Do you want to execute '$StepName'? (Y/n)"
+        return $choice -eq '' -or $choice.ToLower() -eq 'y'
 }
 
 function Set-UnrestrictedExecutionPolicy {
@@ -55,19 +79,8 @@ function Install-RequiredApps {
         return
     }
 
-    $appsToInstall = @{
-        'git' = 'git'
-        'Code' = 'vscode'
-    }
-
-    foreach ($app in $appsToInstall.GetEnumerator()) {
-        if (!(Get-Command $app.Key -ErrorAction SilentlyContinue)) {
-            Write-Output "Installing $($app.Value)..."
-            choco install $app.Value
-        } else {
-            Write-Output "$($app.Value) is already installed."
-        }
-    }
+    choco install git oh-my-posh ripgrep make jq yq tldr
+    winget upgrade --id GitHub.cli
 }
 
 function Install-OpenSSH {
@@ -104,6 +117,8 @@ function Configure-SSHService {
     if ($sshd.Status -ne 'Running') {
         Write-Output "Starting SSH service..."
         Start-Service sshd
+    } else {
+        Write-Output "SSH service is already running."
     }
 
     if ($sshd.StartType -ne 'Automatic') {
@@ -136,7 +151,7 @@ function Install-WindowsTerminal {
 
     if (!(Get-Command wt -ErrorAction SilentlyContinue)) {
         Write-Output "Installing Windows Terminal..."
-        winget install Microsoft.WindowsTerminal
+        winget install Microsoft.WindowsTerminal --accept-source-agreements
     } else {
         Write-Output "Windows Terminal is already installed."
     }
@@ -154,6 +169,9 @@ function Install-WindowsDebloater {
         Set-Location ~/Downloads
         git clone https://github.com/Sycnex/Windows10Debloater
         Set-Location Windows10Debloater
+    } else {
+        Write-Output "Windows10Debloater already exists."
+        Set-Location $debloaterPath
     }
     Write-Output "Starting Windows10DebloaterGUI..."
     .\Windows10DebloaterGUI.ps1
@@ -184,6 +202,29 @@ function Disable-PowerShellTelemetry {
     }
 }
 
+function Install-WinGetModule {
+    if (-not (Confirm-Step "Install WinGet PowerShell Module")) {
+        Write-Output "Skipping WinGet PowerShell module installation..."
+        return
+    }
+
+    if (-not (Get-Module -Name Microsoft.WinGet.Client -ListAvailable)) {
+        Write-Host "Installing WinGet PowerShell module..."
+        if (-not (Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue)) {
+            Write-Host "Installing NuGet package provider..."
+            Install-PackageProvider -Name NuGet -Force -Confirm:$False | Out-Null
+            Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery | Out-Null
+            Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
+            Repair-WinGetPackageManager -AllUsers
+        } else {
+            Write-Host "NuGet package provider is already installed."
+        }
+    } else {
+        Write-Host "WinGet PowerShell module is already installed."
+    }
+}
+
+
 function Assert-Administrator {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -195,22 +236,93 @@ function Assert-Administrator {
     Write-Output "Running with Administrator privileges."
 }
 
+
+function Install-Profile {
+    if (-not (Confirm-Step "Install PowerShell Profile")) {
+        Write-Output "Skipping PowerShell profile installation..."
+        return
+    }
+
+    Write-Output "Installing PowerShell profile..."
+    $documentsDir = [Environment]::GetFolderPath("MyDocuments")
+    $profilePath = "$documentsDir\WindowsPowerShell"
+
+    if (Test-Path $profilePath) {
+        Write-Output "Existing PowerShell profile found. Moving to trash..."
+        Remove-ItemToRecycleBin -Path $profilePath
+    } else {
+        Write-Output "No existing PowerShell profile found."
+    }
+
+    git clone https://github.com/falleng0d/WindowsPowerShell $profilePath
+
+    $powerShell7Path = "$documentsDir\PowerShell"
+    if (Test-Path $powerShell7Path) {
+        Write-Output "Existing PowerShell 7 profile found. Moving to trash..."
+        Remove-ItemToRecycleBin -Path $powerShell7Path
+    } else {
+        Write-Output "No existing PowerShell 7 profile found."
+    }
+
+    $pwd = Get-Location
+    cd $profilePath
+    git fetch origin PowerShell7
+    git worktree add -b PowerShell7 $powerShell7Path
+    cd $pwd
+
+    . $profile
+}
+
+function Install-ProfileModules {
+    if (-not (Confirm-Step "Install PowerShell Profile Modules")) {
+        Write-Output "Skipping PowerShell profile modules installation..."
+        return
+    }
+
+    Write-Output "Installing PowerShell profile modules..."
+
+    Install-Module Pscx -Scope CurrentUser -AllowClobber
+    Install-Module PSReadLine -RequiredVersion 2.1.0
+    Install-Module PSEverything
+    Install-Module -Name PSFzf
+    Import-Module Get-GitHubSubFolderOrFile
+
+    Invoke-RestMethod get.scoop.sh | Invoke-Expression
+
+    $modulesPath = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules\"
+
+    Get-GitHubSubFolderOrFile -gitUrl "https://github.com/BornToBeRoot/PowerShell" -repoPathToExtract "Module/LazyAdmin" -destPath $modulesPath
+
+    #. ([Scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/BornToBeRoot/PowerShell/master/Scripts/OptimizePowerShellStartup.ps1")))
+}
+
 # Main execution flow
 Write-Output "Starting system bootstrap process..."
-if ($AskBeforeExecuting) {
+if (-not $NonInteractive) {
     Write-Output "Interactive mode enabled - you will be asked before each step."
 }
 
 # Verify administrator privileges before proceeding
 Assert-Administrator
 
+Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
+
+Install-WinGetModule
 Install-Chocolatey
+
+Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1
 Install-RequiredApps
+refreshenv
+
+Install-ProfileModules
+Install-Profile
+
 Install-OpenSSH
 Configure-SSHService
 Configure-SSHFirewallRule
+
 Install-WindowsTerminal
 Install-WindowsDebloater
 
