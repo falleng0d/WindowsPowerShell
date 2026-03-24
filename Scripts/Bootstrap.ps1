@@ -174,17 +174,13 @@ function Install-WinGetModule {
         return
     }
 
-    if (-not (Get-Module -Name Microsoft.WinGet.Client -ListAvailable)) {
+    if (-not (Get-Command -ErrorAction SilentlyContinue winget)) {
+        Write-Host "Installing NuGet package provider..."
+        Install-PackageProvider -Name NuGet -Force -Confirm:$False
         Write-Host "Installing WinGet PowerShell module..."
-        if (-not (Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue)) {
-            Write-Host "Installing NuGet package provider..."
-            Install-PackageProvider -Name NuGet -Force -Confirm:$False | Out-Null
-            Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery | Out-Null
-            Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
-            Repair-WinGetPackageManager -AllUsers
-        } else {
-            Write-Host "NuGet package provider is already installed."
-        }
+        Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery
+        Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
+        Repair-WinGetPackageManager -AllUsers
     } else {
         Write-Host "WinGet PowerShell module is already installed."
     }
