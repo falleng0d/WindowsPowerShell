@@ -73,11 +73,11 @@ function Install-RequiredApps {
     }
 
     choco install git oh-my-posh ripgrep make jq yq fzf tldr vscode winrar `
-        winscp windirstat vlc vagrant `
-        unzip terraform rustdesk xyplorer mobaxterm notepad4 LinkShellExtension Lazydocker `
-        lazygit klogg keypirinha gimp gh firefox grep go jcpicker jnv just ffmpeg everything `
-        dbeaver deno dngrep bun bat awscli awk autohotkey ctop rsync `
-        restic systeminformer plantuml powershell-core powertoys mitmproxy
+        winscp windirstat vlc vagrant unzip terraform rustdesk mobaxterm `
+        notepad4 LinkShellExtension Lazydocker lazygit klogg gimp gh `
+        firefox grep go jcpicker jnv just ffmpeg everything dbeaver deno dngrep `
+        bun bat awscli awk autohotkey ctop rsync restic systeminformer plantuml `
+        powershell-core powertoys mitmproxy rust
     choco install roboto.font JetbrainsMono nerd-fonts-JetBrainsMono opensans `
         fantasque-sans.font Inconsolata
 }
@@ -88,9 +88,15 @@ function Install-Extras {
         return
     }
 
-    choco install libreoffice-fresh 1password docker-desktop tailscale speedcrunch
+    choco install libreoffice-fresh 1password docker-desktop tailscale speedcrunch `
+        ditto xyplorer keypirinha cursor picpick
     winget install --accept-source-agreements Canva.Affinity JetBrains.Toolbox `
-        ntwind.windowspace
+        ntwind.windowspace NGWIN.PicPick
+
+    # downlod https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe
+    Invoke-WebRequest -Uri "https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe" -OutFile "$env:TEMP\SmoothScroll_Setup.exe"
+    # install smooth scroll
+    Start-Process -FilePath "$env:TEMP\SmoothScroll_Setup.exe" -ArgumentList "/S" -Wait
 }
 
 function Install-Node {
