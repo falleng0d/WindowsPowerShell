@@ -100,6 +100,8 @@ function Install-Node {
     }
 
     choco install nvs
+    refreshenv
+
     nvs add 22
     nvs add 24
     nvs link 24
@@ -128,6 +130,7 @@ function Install-Pyenv {
         "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" `
          -OutFile "./install-pyenv-win.ps1"
     & "./install-pyenv-win.ps1"
+    refreshenv
     pyenv update
 }
 
