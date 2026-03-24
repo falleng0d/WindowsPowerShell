@@ -61,12 +61,25 @@ function Install-RequiredApps {
         return
     }
 
-    choco install -y git oh-my-posh ripgrep make jq yq fzf tldr vscode JetbrainsMono `
-        nerd-fonts-JetBrainsMono winrar winscp windirstat vlc vcredist-all vagrant `
+    choco install -y git oh-my-posh ripgrep make jq yq fzf tldr vscode winrar `
+        winscp windirstat vlc vcredist-all vagrant `
         unzip terraform rustdesk xyplorer mobaxterm notepad4 LinkShellExtension Lazydocker `
         lazygit klogg keypirinha gimp gh firefox grep go jcpicker jnv just ffmpeg everything `
-        dbeaver deno dngrep bun bat awscli awk autohotkey 1password docker-desktop ctop
-    winget install --id GitHub.cli --accept-source-agreements
+        dbeaver deno dngrep bun bat awscli awk autohotkey 1password docker-desktop ctop `
+        tailscale speedcrunch rsync restic processhacker plantuml powershell-core powertoys `
+        nvs mitmproxy libreoffice-fresh
+    choco install -y roboto.font JetbrainsMono nerd-fonts-JetBrainsMono opensans `
+        fantasque-sans.font Inconsolata
+}
+
+function Install-Extras {
+    if (-not (Confirm-Step "Install Required Apps (Git, VSCode)")) {
+        Write-Output "Skipping required apps installation..."
+        return
+    }
+
+    choco install -y
+    winget install --accept-source-agreements Canva.Affinity JetBrains.Toolbox ntwind.windowspace
 }
 
 function Install-WindowsTerminal {
@@ -126,9 +139,10 @@ Assert-Administrator
 Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
 
-Install-RequiredApps
-
 Install-WindowsTerminal
+Install-RequiredApps
+Install-Extras
+
 Install-WindowsDebloater
 
 Write-Output "System bootstrap process completed."
