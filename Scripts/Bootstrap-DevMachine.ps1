@@ -92,11 +92,6 @@ function Install-Extras {
         ditto xyplorer keypirinha cursor picpick
     winget install --accept-source-agreements Canva.Affinity JetBrains.Toolbox `
         ntwind.windowspace NGWIN.PicPick
-
-    # downlod https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe
-    Invoke-WebRequest -Uri "https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe" -OutFile "$env:TEMP\SmoothScroll_Setup.exe"
-    # install smooth scroll
-    Start-Process -FilePath "$env:TEMP\SmoothScroll_Setup.exe" -ArgumentList "/S" -Wait
 }
 
 function Install-KeypirinhaSettings {
@@ -124,6 +119,20 @@ function Install-KeypirinhaSettings {
     New-Item -ItemType Directory -Path $keypirinhaPath -Force | Out-Null
     Import-Module "$PSScriptRoot\..\Modules\Get-GitHubSubFolderOrFile\Get-GitHubSubFolderOrFile.psm1"
     Get-GitHubSubFolderOrFile -gitUrl "https://github.com/falleng0d/WindowsPowerShell" -repoPathToExtract "Scripts/Keypirinha" -destPath $keypirinhaPath
+}
+
+function Install-SmoothScroll {
+    if (-not (Confirm-Step "Install SmoothScroll")) {
+        Write-Output "Skipping SmoothScroll installation..."
+        return
+    }
+
+    $installerPath = Join-Path $env:TEMP "SmoothScroll_Setup.exe"
+    Write-Output "Downloading SmoothScroll installer..."
+    Invoke-WebRequest -Uri "https://www.smoothscroll.net/win/download/SmoothScroll_Setup.exe" -OutFile $installerPath
+
+    Write-Output "Launching SmoothScroll installer..."
+    Start-Process -FilePath $installerPath -ArgumentList "/S" -Wait
 }
 
 function Install-HandyPlus {
@@ -286,6 +295,7 @@ Install-PythonPackages
 #Install-RequiredApps
 Install-Extras
 Install-KeypirinhaSettings
+Install-SmoothScroll
 Install-HandyPlus
 
 Install-WindowsDebloater
