@@ -99,6 +99,22 @@ function Install-Extras {
         ntwind.windowspace NGWIN.PicPick
 }
 
+function Clone-TaskSchedulerRepository {
+    if (-not (Confirm-Step "Clone TaskScheduler repository")) {
+        Write-Output "Skipping TaskScheduler repository clone..."
+        return
+    }
+
+    $targetPath = "C:\Users\falleng0d\Documents\TaskScheduler"
+    if (Test-Path $targetPath) {
+        Write-Output "TaskScheduler repository already exists at '$targetPath'."
+        return
+    }
+
+    Write-Output "Cloning TaskScheduler repository to '$targetPath'..."
+    git clone https://github.com/falleng0d/TaskScheduler $targetPath
+}
+
 function Install-KeypirinhaSettings {
     if (-not (Confirm-Step "Install Keypirinha settings")) {
         Write-Output "Skipping Keypirinha settings installation..."
@@ -316,6 +332,8 @@ Install-Extras
 Install-KeypirinhaSettings
 Install-SmoothScroll
 Install-HandyPlus
+
+Clone-TaskSchedulerRepository
 
 Install-WindowsDebloater
 
