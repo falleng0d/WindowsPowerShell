@@ -143,40 +143,6 @@ function Configure-SSHFirewallRule {
     }
 }
 
-function Install-WindowsTerminal {
-    if (-not (Confirm-Step "Install Windows Terminal")) {
-        Write-Output "Skipping Windows Terminal installation..."
-        return
-    }
-
-    if (!(Get-Command wt -ErrorAction SilentlyContinue)) {
-        Write-Output "Installing Windows Terminal..."
-        winget install Microsoft.WindowsTerminal --accept-source-agreements
-    } else {
-        Write-Output "Windows Terminal is already installed."
-    }
-}
-
-function Install-WindowsDebloater {
-    if (-not (Confirm-Step "Install and Run Windows10Debloater")) {
-        Write-Output "Skipping Windows10Debloater..."
-        return
-    }
-
-    $debloaterPath = "~/Downloads/Windows10Debloater"
-    if (!(Test-Path $debloaterPath)) {
-        Write-Output "Downloading Windows10Debloater..."
-        Set-Location ~/Downloads
-        git clone https://github.com/Sycnex/Windows10Debloater
-        Set-Location Windows10Debloater
-    } else {
-        Write-Output "Windows10Debloater already exists."
-        Set-Location $debloaterPath
-    }
-    Write-Output "Starting Windows10DebloaterGUI..."
-    .\Windows10DebloaterGUI.ps1
-}
-
 function Disable-PowerShellTelemetry {
     if (-not (Confirm-Step "Disable PowerShell Telemetry")) {
         Write-Output "Skipping PowerShell telemetry disablement..."
@@ -208,22 +174,17 @@ function Install-WinGetModule {
         return
     }
 
-    if (-not (Get-Module -Name Microsoft.WinGet.Client -ListAvailable)) {
+    if (-not (Get-Command -ErrorAction SilentlyContinue winget)) {
+        Write-Host "Installing NuGet package provider..."
+        Install-PackageProvider -Name NuGet -Force -Confirm:$False
         Write-Host "Installing WinGet PowerShell module..."
-        if (-not (Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue)) {
-            Write-Host "Installing NuGet package provider..."
-            Install-PackageProvider -Name NuGet -Force -Confirm:$False | Out-Null
-            Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery | Out-Null
-            Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
-            Repair-WinGetPackageManager -AllUsers
-        } else {
-            Write-Host "NuGet package provider is already installed."
-        }
+        Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery
+        Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet..."
+        Repair-WinGetPackageManager -AllUsers
     } else {
         Write-Host "WinGet PowerShell module is already installed."
     }
 }
-
 
 function Assert-Administrator {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -235,7 +196,6 @@ function Assert-Administrator {
     }
     Write-Output "Running with Administrator privileges."
 }
-
 
 function Install-Profile {
     if (-not (Confirm-Step "Install PowerShell Profile")) {
@@ -254,6 +214,7 @@ function Install-Profile {
         Write-Output "No existing PowerShell profile found."
     }
 
+    mkdir -p $profilePath
     git clone https://github.com/falleng0d/WindowsPowerShell $profilePath
 
     $powerShell7Path = "$documentsDir\PowerShell"
@@ -281,6 +242,8 @@ function Install-ProfileModules {
 
     Write-Output "Installing PowerShell profile modules..."
 
+    Set-PSRepository PSGallery -InstallationPolicy Trusted
+
     Install-Module Pscx -Scope CurrentUser -AllowClobber
     Install-Module PSReadLine -RequiredVersion 2.1.0
     Install-Module PSEverything
@@ -305,7 +268,6 @@ if (-not $NonInteractive) {
 # Verify administrator privileges before proceeding
 Assert-Administrator
 
-Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
 
@@ -322,8 +284,5 @@ Install-Profile
 Install-OpenSSH
 Configure-SSHService
 Configure-SSHFirewallRule
-
-Install-WindowsTerminal
-Install-WindowsDebloater
 
 Write-Output "System bootstrap process completed."
