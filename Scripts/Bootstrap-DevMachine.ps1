@@ -120,10 +120,10 @@ function Install-NodePackages {
     }
 
     npm install -g npm@latest
-    npm install -g pnpm yarn npm opencode-ai@latest @kilocode/cli@latest `
+    npm install -g pnpm yarn npm opencode-ai '@kilocode/cli' `
         typescript-language-server typescript ts-node tsx prettier `
-        rev-dep lnai tailwindcss/language-server@latest @augmentcode/auggie `
-        @openai/codex @google/gemini-cli vercel next
+        rev-dep lnai '@tailwindcss/language-server' '@augmentcode/auggie' `
+        '@openai/codex' '@google/gemini-cli' vercel next
 }
 
 function Install-Pyenv {
