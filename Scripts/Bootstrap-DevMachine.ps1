@@ -7,7 +7,9 @@ param(
     [switch]$NonInteractive = $false
 )
 
-if ($env:NONINTERACTIVE -eq "true") {
+$IsDirectExecution = ($CommandOrigin -eq "Runspace")
+
+if ($env:NONINTERACTIVE -eq "true" -and $IsDirectExecution) {
     $NonInteractive = $true
 }
 
@@ -269,7 +271,6 @@ function Install-Node {
     choco install nvs
     refreshenv
 
-    nvs add 22
     nvs add 24
     nvs link 24
 }
@@ -371,6 +372,29 @@ function Assert-Administrator {
     Write-Output "Running with Administrator privileges."
 }
 
+# Only execute if script is run directly (not imported)
+if (-not $IsDirectExecution) {
+    Export-ModuleMember -Function Install-DevMachine
+    Export-ModuleMember -Function Install-Node
+    Export-ModuleMember -Function Install-NodePackages
+    Export-ModuleMember -Function Install-Pyenv
+    Export-ModuleMember -Function Install-Python
+    Export-ModuleMember -Function Install-PythonPackages
+    Export-ModuleMember -Function Install-RequiredApps
+    Export-ModuleMember -Function Install-Extras
+    Export-ModuleMember -Function Install-SmoothScroll
+    Export-ModuleMember -Function Install-HandyPlus
+    Export-ModuleMember -Function Install-KeypirinhaSettings
+    Export-ModuleMember -Function Install-PicPickSettings
+    Export-ModuleMember -Function Install-MacTypeSettings
+    Export-ModuleMember -Function Clone-TaskSchedulerRepository
+    Export-ModuleMember -Function Install-WindowsDebloater
+    Export-ModuleMember -Function Install-VcRedistributables
+    Export-ModuleMember -Function Install-WindowsTerminal
+
+    return
+}
+
 # Main execution flow
 Write-Output "Starting system bootstrap process..."
 if (-not $NonInteractive) {
@@ -412,3 +436,4 @@ Clone-TaskSchedulerRepository
 Install-WindowsDebloater
 
 Write-Output "System bootstrap process completed."
+
