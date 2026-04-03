@@ -248,8 +248,6 @@ function Install-ProfileModules {
     Install-Module -Name PSFzf
     Import-Module Get-GitHubSubFolderOrFile
 
-    Invoke-RestMethod get.scoop.sh | Invoke-Expression
-
     $modulesPath = $PROFILE.CurrentUserAllHosts -replace "[^\\]*.ps1$","Modules\"
     $lazyAdminModulePath = Join-Path $modulesPath "LazyAdmin"
     mkdir -p $lazyAdminModulePath
