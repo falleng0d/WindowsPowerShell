@@ -7,9 +7,7 @@ param(
     [switch]$NonInteractive = $false
 )
 
-$IsDirectExecution = ($CommandOrigin -eq "Runspace")
-
-if ($env:NONINTERACTIVE -eq "true" -and $IsDirectExecution) {
+if ($env:NONINTERACTIVE -eq "true") {
     $NonInteractive = $true
 }
 
@@ -371,12 +369,6 @@ function Assert-Administrator {
         exit 1
     }
     Write-Output "Running with Administrator privileges."
-}
-
-# Only execute if script is run directly (not imported)
-if (-not $IsDirectExecution) {
-    Write-Output "Script is being imported, not executed directly. Skipping main execution flow. CommandOrigin: $CommandOrigin"
-    return
 }
 
 # Main execution flow
