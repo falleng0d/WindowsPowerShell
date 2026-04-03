@@ -32,10 +32,11 @@ function Remove-ItemToRecycleBin($Path) {
 
 function Confirm-Step {
     param(
-        [string]$StepName
+        [string]$StepName,
+        [switch]$Force = $false
     )
 
-    if ($NonInteractive) {
+    if ($NonInteractive -and -not $Force) {
         return $true
     }
 
@@ -74,7 +75,7 @@ function Install-VcRedistributables {
 }
 
 function Install-RequiredApps {
-    if (Confirm-Step "Install Required Apps (Git, VSCode)") {
+    if (-not (Confirm-Step -Force "Install Required Apps (Git, VSCode)")) {
         Write-Output "Skipping required apps installation..."
         return
     }
