@@ -375,24 +375,6 @@ function Assert-Administrator {
 
 # Only execute if script is run directly (not imported)
 if (-not $IsDirectExecution) {
-    Export-ModuleMember -Function Install-DevMachine
-    Export-ModuleMember -Function Install-Node
-    Export-ModuleMember -Function Install-NodePackages
-    Export-ModuleMember -Function Install-Pyenv
-    Export-ModuleMember -Function Install-Python
-    Export-ModuleMember -Function Install-PythonPackages
-    Export-ModuleMember -Function Install-RequiredApps
-    Export-ModuleMember -Function Install-Extras
-    Export-ModuleMember -Function Install-SmoothScroll
-    Export-ModuleMember -Function Install-HandyPlus
-    Export-ModuleMember -Function Install-KeypirinhaSettings
-    Export-ModuleMember -Function Install-PicPickSettings
-    Export-ModuleMember -Function Install-MacTypeSettings
-    Export-ModuleMember -Function Clone-TaskSchedulerRepository
-    Export-ModuleMember -Function Install-WindowsDebloater
-    Export-ModuleMember -Function Install-VcRedistributables
-    Export-ModuleMember -Function Install-WindowsTerminal
-
     return
 }
 
