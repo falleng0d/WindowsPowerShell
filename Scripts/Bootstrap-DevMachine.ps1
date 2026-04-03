@@ -375,6 +375,7 @@ function Assert-Administrator {
 
 # Only execute if script is run directly (not imported)
 if (-not $IsDirectExecution) {
+    Write-Output "Script is being imported, not executed directly. Skipping main execution flow. CommandOrigin: $CommandOrigin"
     return
 }
 
