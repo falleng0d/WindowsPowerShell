@@ -89,8 +89,10 @@ function Install-OpenSSH {
         return
     }
 
-    $sshClient = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*'
-    $sshServer = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Server*'
+    $sshClient = Get-WindowsCapability -Online |
+            Where-Object Name -like 'OpenSSH.Client*'
+    $sshServer = Get-WindowsCapability -Online |
+            Where-Object Name -like 'OpenSSH.Server*'
 
     if ($sshClient.State -ne "Installed") {
         Write-Output "Installing OpenSSH Client..."
@@ -105,7 +107,40 @@ function Install-OpenSSH {
     } else {
         Write-Output "OpenSSH Server is already installed."
     }
+
+    New-ItemProperty -Name DefaultShell -Value "C:\Program Files\PowerShell\7\pwsh.exe" -Path "HKLM:\SOFTWARE\OpenSSH" -PropertyType String -Force
+
+    # comment AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys out of sshd_config to allow administrators to use authorized_keys for key-based authentication
+    $sshdConfigPath = "C:\ProgramData\ssh\sshd_config"
+    if (Test-Path $sshdConfigPath) {
+        $sshdConfigContent = Get-Content $sshdConfigPath
+        if ($sshdConfigContent -match "^\s*AuthorizedKeysFile\s+__PROGRAMDATA__/ssh/administrators_authorized_keys") {
+            Write-Output "Commenting out 'AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys' in sshd_config..."
+            $updatedContent = $sshdConfigContent -replace "^\s*AuthorizedKeysFile\s+__PROGRAMDATA__/ssh/administrators_authorized_keys", "# AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys"
+            Set-Content -Path $sshdConfigPath -Value $updatedContent
+        } else {
+            Write-Output "'AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys' is already commented out in sshd_config."
+        }
+    } else {
+        Write-Output "sshd_config not found at $sshdConfigPath. Skipping configuration of AuthorizedKeysFile."
+    }
+
+    winget install "Microsoft.OpenSSH.Preview" --accept-source-agreements
+
+    Sleep -Milliseconds 1000
+
+    $service = Get-Service sshd -ErrorAction SilentlyContinue
+    if ($service -ne $null) {
+        if ($service.Status -ne 'Running') {
+            Write-Output "Starting SSH service..."
+            Start-Service sshd
+        } else {
+            Stop-Service sshd
+            Start-Service sshd
+        }
+    }
 }
+
 
 function Configure-SSHService {
     if (-not (Confirm-Step "Configure SSH Service")) {
