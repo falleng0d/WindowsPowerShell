@@ -62,6 +62,11 @@ function Install-VcRedistributables {
         return
     }
 
+    if (Get-Command Save-VcRedist -ErrorAction SilentlyContinue) {
+        Write-Output "VcRedist module is already installed."
+        return
+    }
+
     Install-Module -Name VcRedist -RequiredVersion 4.0.460 -Force
     Import-Module -Name VcRedist
     Save-VcRedist -VcList (Get-VcList -Release (2015, 2017, 2019, 2022))
@@ -80,7 +85,7 @@ function Install-RequiredApps {
 
     choco install git oh-my-posh ripgrep make jq yq fzf tldr vscode winrar `
         winscp windirstat vlc vagrant unzip terraform rustdesk mobaxterm `
-        notepad4 LinkShellExtension Lazydocker lazygit klogg gimp gh `
+        notepad4 LinkShellExtension Lazydocker klogg gimp gh `
         firefox grep go jcpicker jnv just ffmpeg everything dbeaver deno dngrep `
         bun bat awscli awk autohotkey ctop rsync restic systeminformer plantuml `
         powershell-core powertoys mitmproxy rust
@@ -360,25 +365,11 @@ function Install-WindowsDebloater {
     .\Windows10DebloaterGUI.ps1
 }
 
-function Assert-Administrator {
-    $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-    $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-
-    if (-not $isAdmin) {
-        Write-Error "This script must be run as Administrator. Please restart PowerShell as Administrator and try again."
-        exit 1
-    }
-    Write-Output "Running with Administrator privileges."
-}
-
 # Main execution flow
 Write-Output "Starting system bootstrap process..."
 if (-not $NonInteractive) {
     Write-Output "Interactive mode enabled - you will be asked before each step."
 }
-
-# Verify administrator privileges before proceeding
-Assert-Administrator
 
 Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-UnrestrictedExecutionPolicy
