@@ -8,6 +8,7 @@
     PowerShellVersion = '5.1'
     FunctionsToExport = @(
         'Test-ConsoleHost',
+        'Is-InteractiveAndVisible',
         'Edit-Profile',
         'Get-Properties',
         'Enter-Admin',
