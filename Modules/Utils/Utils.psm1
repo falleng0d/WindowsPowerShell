@@ -1,7 +1,7 @@
 param()
 
 . $PSScriptRoot\Console.ps1
-. $PSScriptRoot\Prof4ile.ps1
+. $PSScriptRoot\Profile.ps1
 . $PSScriptRoot\Files.ps1
 . $PSScriptRoot\Paths.ps1
 . $PSScriptRoot\Text.ps1
