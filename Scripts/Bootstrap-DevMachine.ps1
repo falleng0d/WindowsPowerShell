@@ -266,6 +266,35 @@ function Install-HandyPlus {
     Start-Process -FilePath $installerPath -Wait -ArgumentList "/S"
 }
 
+function Install-Lazygit {
+    if (-not (Confirm-Step "Install Lazygit")) {
+        Write-Output "Skipping Lazygit installation..."
+        return
+    }
+
+    $lazygitRepo = "https://github.com/falleng0d/lazygit"
+    $toolsPath = "C:\Tools"
+
+    if (!(Test-Path $toolsPath)) {
+        New-Item -ItemType Directory -Path $toolsPath | Out-Null
+    }
+
+    if (Test-Path (Join-Path $toolsPath "lazygit")) {
+        Write-Output "Lazygit is already cloned in $toolsPath."
+
+        Write-Output "Pulling latest changes for Lazygit..."
+        Set-Location (Join-Path $toolsPath "lazygit")
+        git pull
+    } else {
+        Write-Output "Cloning Lazygit repository to $toolsPath..."
+        git clone $lazygitRepo (Join-Path $toolsPath "lazygit")
+        Set-Location (Join-Path $toolsPath "lazygit")
+    }
+
+    Write-Output "Installing Lazygit..."
+    go install
+}
+
 function Install-Node {
     if (-not (Confirm-Step "Install Node.js")) {
         Write-Output "Skipping Node.js installation..."
@@ -387,8 +416,10 @@ Install-PythonPackages
 
 Install-RequiredApps
 Install-Extras
+refreshenv
 Install-SmoothScroll
 Install-HandyPlus
+Install-Lazygit
 
 Install-Module -Name PSJinja
 
