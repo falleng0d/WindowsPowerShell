@@ -203,6 +203,35 @@ function Disable-PowerShellTelemetry {
     }
 }
 
+function Disable-ClaudeCodeTelemetry {
+    if (-not (Confirm-Step "Disable ClaudeCode Telemetry")) {
+        Write-Output "Skipping ClaudeCode telemetry disablement..."
+        return
+    }
+
+    Write-Output "Disabling ClaudeCode telemetry..."
+    $variables = [ordered]@{
+        CLAUDE_CODE_ACCOUNT_UUID="11111111-1111-1111-1111-111111111111"
+        CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY="1"
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"
+        CLAUDE_CODE_ORGANIZATION_UUID="00000000-0000-0000-0000-000000000000"
+        CLAUDE_CODE_USER_EMAIL="root@anthropic.com"
+        DISABLE_ERROR_REPORTING="1"
+        DISABLE_FEEDBACK_COMMAND="1"
+        DISABLE_TELEMETRY="1"
+        VERCEL_PLUGIN_TELEMETRY="off"
+    }
+    foreach ($target in "User","Machine") {
+        write-Host "Target: $target" -foregroundcolor cyan
+        foreach ($key in $variables.Keys) {
+            if (-not [Environment]::GetEnvironmentVariable($key, $target)) {
+                [Environment]::SetEnvironmentVariable($key, $variables.$Key, $target)
+                write-Host "  $key = $($variables.$Key)"
+            }
+        }
+        }
+}
+
 function Install-WinGetModule {
     if (-not (Confirm-Step "Install WinGet PowerShell Module")) {
         Write-Output "Skipping WinGet PowerShell module installation..."
@@ -309,6 +338,7 @@ Assert-Administrator
 
 Set-UnrestrictedExecutionPolicy
 Disable-PowerShellTelemetry
+Disable-ClaudeCodeTelemetry
 
 Install-WinGetModule
 Install-Chocolatey
