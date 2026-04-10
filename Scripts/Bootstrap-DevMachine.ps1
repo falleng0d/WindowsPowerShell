@@ -121,6 +121,24 @@ function Clone-TaskSchedulerRepository {
     git clone https://github.com/falleng0d/TaskScheduler $targetPath
 }
 
+function Install-PowerShellEditorServices {
+    if (-not (Confirm-Step "Install PowerShell Editor Services")) {
+        Write-Output "Skipping PowerShell Editor Services installation..."
+        return
+    }
+
+    if (Test-Path "C:/tools/PowerShellEditorServices") {
+        Write-Output "PowerShell Editor Services is already installed."
+        return
+    }
+
+    $DownloadUrl = 'https://github.com/PowerShell/PowerShellEditorServices/releases/latest/download/PowerShellEditorServices.zip';
+    $ZipPath = "$HOME/Downloads/PowerShellEditorServices.zip";
+    $InstallPath = "C:/tools/PowerShellEditorServices";
+    Invoke-WebRequest -Method 'GET' -Uri $DownloadUrl -OutFile $ZipPath;
+    Expand-Archive -Path $ZipPath -DestinationPath $InstallPath;
+}
+
 function Install-MacTypeSettings {
     if (-not (Confirm-Step "Install MacType settings")) {
         Write-Output "Skipping MacType settings installation..."
@@ -416,6 +434,7 @@ Install-PythonPackages
 
 Install-RequiredApps
 Install-Extras
+Install-PowerShellEditorServices
 refreshenv
 Install-SmoothScroll
 Install-HandyPlus
