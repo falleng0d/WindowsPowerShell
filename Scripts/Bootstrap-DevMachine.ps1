@@ -4,7 +4,10 @@
 [CmdletBinding()]
 param(
     [Parameter()]
-    [switch]$NonInteractive = $false
+    [switch]$NonInteractive = $false,
+
+    [Parameter()]
+    [string[]]$Install
 )
 
 if ($env:NONINTERACTIVE -eq "true") {
@@ -412,45 +415,85 @@ function Install-WindowsDebloater {
     .\Windows10DebloaterGUI.ps1
 }
 
-# Main execution flow
-Write-Output "Starting system bootstrap process..."
-if (-not $NonInteractive) {
-    Write-Output "Interactive mode enabled - you will be asked before each step."
+function Invoke-InstallStep {
+    param(
+        [Parameter(Mandatory)]
+        [string]$StepName,
+
+        [Parameter(Mandatory)]
+        [scriptblock]$Action
+    )
+
+    if ($Install -contains 'All' -or $Install -contains $StepName) {
+        Write-Output "Running install step: $StepName"
+        & $Action
+    }
 }
 
-Set-PSRepository PSGallery -InstallationPolicy Trusted
-Set-UnrestrictedExecutionPolicy
-refreshenv
+if (-not $Install -and $NonInteractive) {
+    $Install = @('All')
+}
 
-Install-VcRedistributables
-Install-WindowsTerminal
+if ($Install) {
+    Write-Output "Starting system bootstrap process..."
+    if (-not $NonInteractive) {
+        Write-Output "Interactive mode enabled - you will be asked before each step."
+    }
 
-Install-Node; refreshenv
-Install-NodePackages
+    $validInstallSteps = @(
+        'TrustedPSGallery',
+        'UnrestrictedExecutionPolicy',
+        'VcRedistributables',
+        'WindowsTerminal',
+        'Node',
+        'NodePackages',
+        'Pyenv',
+        'Python',
+        'PythonPackages',
+        'RequiredApps',
+        'Extras',
+        'SmoothScroll',
+        'HandyPlus',
+        'Lazygit',
+        'PSJinja',
+        'KeypirinhaSettings',
+        'PicPickSettings',
+        'MacTypeSettings',
+        'LaunchKeypirinha',
+        'TaskSchedulerRepository',
+        'WindowsDebloater',
+        'PowerShellEditorServices',
+        'All'
+    )
 
-Install-Pyenv; refreshenv
-Install-Python
-Install-PythonPackages
+    $unknownInstallSteps = $Install | Where-Object { $_ -notin $validInstallSteps }
+    if ($unknownInstallSteps) {
+        throw "Unknown install step(s): $($unknownInstallSteps -join ', '). Valid values are: $($validInstallSteps -join ', ')"
+    }
 
-Install-RequiredApps
-Install-Extras
-Install-PowerShellEditorServices
-refreshenv
-Install-SmoothScroll
-Install-HandyPlus
-Install-Lazygit
+    Invoke-InstallStep 'TrustedPSGallery' { Set-PSRepository PSGallery -InstallationPolicy Trusted }
+    Invoke-InstallStep 'UnrestrictedExecutionPolicy' { Set-UnrestrictedExecutionPolicy }
+    Invoke-InstallStep 'VcRedistributables' { Install-VcRedistributables }
+    Invoke-InstallStep 'WindowsTerminal' { Install-WindowsTerminal }
+    Invoke-InstallStep 'Node' { Install-Node; refreshenv }
+    Invoke-InstallStep 'NodePackages' { Install-NodePackages }
+    Invoke-InstallStep 'Pyenv' { Install-Pyenv; refreshenv }
+    Invoke-InstallStep 'Python' { Install-Python }
+    Invoke-InstallStep 'PythonPackages' { Install-PythonPackages }
+    Invoke-InstallStep 'RequiredApps' { Install-RequiredApps }
+    Invoke-InstallStep 'Extras' { Install-Extras }
+    Invoke-InstallStep 'PowerShellEditorServices' { Install-PowerShellEditorServices }
+    Invoke-InstallStep 'SmoothScroll' { Install-SmoothScroll }
+    Invoke-InstallStep 'HandyPlus' { Install-HandyPlus }
+    Invoke-InstallStep 'Lazygit' { Install-Lazygit }
+    Invoke-InstallStep 'PSJinja' { Install-Module -Name PSJinja }
+    Invoke-InstallStep 'KeypirinhaSettings' { Install-KeypirinhaSettings }
+    Invoke-InstallStep 'PicPickSettings' { Install-PicPickSettings }
+    Invoke-InstallStep 'MacTypeSettings' { Install-MacTypeSettings }
+    Invoke-InstallStep 'LaunchKeypirinha' { keypirinha }
+    Invoke-InstallStep 'TaskSchedulerRepository' { Clone-TaskSchedulerRepository }
+    Invoke-InstallStep 'WindowsDebloater' { Install-WindowsDebloater }
 
-Install-Module -Name PSJinja
-
-Install-KeypirinhaSettings
-Install-PicPickSettings
-Install-MacTypeSettings
-
-keypirinha
-
-Clone-TaskSchedulerRepository
-
-Install-WindowsDebloater
-
-Write-Output "System bootstrap process completed."
+    Write-Output "System bootstrap process completed."
+}
 
