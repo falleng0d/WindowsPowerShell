@@ -1,5 +1,7 @@
 #requires -version 2.0
 
+$MaximumHistoryCount = 32000
+
 # Check if the console output supports virtual terminal processing or it's redirected
 $isNonInteractive = ($args -like '*-NonInteractive*'  `
                          -or $args -like '*-File*' `
