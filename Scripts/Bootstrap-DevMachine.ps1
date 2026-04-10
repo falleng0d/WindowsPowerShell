@@ -160,8 +160,6 @@ function Install-MacTypeSettings {
             Write-Output "Keeping existing MacType settings."
             return
         }
-
-        Remove-Item -Path $macTypePath -Recurse -Force
     }
 
     New-Item -ItemType Directory -Path $macTypePath -Force | Out-Null
@@ -186,8 +184,6 @@ function Install-KeypirinhaSettings {
             Write-Output "Keeping existing Keypirinha settings."
             return
         }
-
-        Remove-Item -Path $keypirinhaPath -Recurse -Force
     }
 
     New-Item -ItemType Directory -Path $keypirinhaPath -Force | Out-Null
@@ -212,8 +208,6 @@ function Install-PicPickSettings {
             Write-Output "Keeping existing PicPick settings."
             return
         }
-
-        Remove-Item -Path $picPickPath -Recurse -Force
     }
 
     New-Item -ItemType Directory -Path $picPickPath -Force | Out-Null
