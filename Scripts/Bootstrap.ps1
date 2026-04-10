@@ -4,7 +4,10 @@
 [CmdletBinding()]
 param(
     [Parameter()]
-    [switch]$NonInteractive = $false
+    [switch]$NonInteractive = $false,
+
+    [Parameter()]
+    [string[]]$Install
 )
 
 if ($env:NONINTERACTIVE -eq "true") {
@@ -39,6 +42,21 @@ function Confirm-Step {
 
     $choice = Read-Host "Do you want to execute '$StepName'? (Y/n)"
         return $choice -eq '' -or $choice.ToLower() -eq 'y'
+}
+
+function Invoke-InstallStep {
+    param(
+        [Parameter(Mandatory)]
+        [string]$StepName,
+
+        [Parameter(Mandatory)]
+        [scriptblock]$Action
+    )
+
+    if ($Install -contains 'All' -or $Install -contains $StepName) {
+        Write-Output "Running install step: $StepName"
+        & $Action
+    }
 }
 
 function Set-UnrestrictedExecutionPolicy {
@@ -327,33 +345,57 @@ function Install-ProfileModules {
     . ([Scriptblock]::Create($optimizePowerShellStartupScript)) | Out-Null
 }
 
-# Main execution flow
-Write-Output "Starting system bootstrap process..."
-if (-not $NonInteractive) {
-    Write-Output "Interactive mode enabled - you will be asked before each step."
+if (-not $Install -and $NonInteractive) {
+    $Install = @('All')
 }
 
-# Verify administrator privileges before proceeding
-Assert-Administrator
+if ($Install) {
+    Write-Output "Starting system bootstrap process..."
+    if (-not $NonInteractive) {
+        Write-Output "Interactive mode enabled - you will be asked before each step."
+    }
 
-Set-UnrestrictedExecutionPolicy
-Disable-PowerShellTelemetry
-Disable-ClaudeCodeTelemetry
+    $validInstallSteps = @(
+        'AdminCheck',
+        'SetExecutionPolicy',
+        'DisablePowerShellTelemetry',
+        'DisableClaudeCodeTelemetry',
+        'WinGetModule',
+        'Chocolatey',
+        'RequiredApps',
+        'Profile',
+        'ProfileModules',
+        'LoadProfile',
+        'OpenSSH',
+        'SSHService',
+        'SSHFirewallRule',
+        'All'
+    )
 
-Install-WinGetModule
-Install-Chocolatey
+    $unknownInstallSteps = $Install | Where-Object { $_ -notin $validInstallSteps }
+    if ($unknownInstallSteps) {
+        throw "Unknown install step(s): $($unknownInstallSteps -join ', '). Valid values are: $($validInstallSteps -join ', ')"
+    }
 
-Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1
-Install-RequiredApps
-refreshenv
+    Write-Output "Running install step: AdminCheck"
+    Assert-Administrator
 
-Install-Profile
-Install-ProfileModules
+    Invoke-InstallStep 'SetExecutionPolicy' { Set-UnrestrictedExecutionPolicy }
+    Invoke-InstallStep 'DisablePowerShellTelemetry' { Disable-PowerShellTelemetry }
+    Invoke-InstallStep 'DisableClaudeCodeTelemetry' { Disable-ClaudeCodeTelemetry }
 
-. $profile
+    Invoke-InstallStep 'WinGetModule' { Install-WinGetModule }
+    Invoke-InstallStep 'Chocolatey' { Install-Chocolatey }
 
-Install-OpenSSH
-Configure-SSHService
-Configure-SSHFirewallRule
+    Invoke-InstallStep 'RequiredApps' { Import-Module C:\ProgramData\chocolatey\helpers\chocolateyProfile.psm1; Install-RequiredApps; refreshenv }
 
-Write-Output "System bootstrap process completed."
+    Invoke-InstallStep 'Profile' { Install-Profile }
+    Invoke-InstallStep 'ProfileModules' { Install-ProfileModules }
+    Invoke-InstallStep 'LoadProfile' { . $profile }
+
+    Invoke-InstallStep 'OpenSSH' { Install-OpenSSH }
+    Invoke-InstallStep 'SSHService' { Configure-SSHService }
+    Invoke-InstallStep 'SSHFirewallRule' { Configure-SSHFirewallRule }
+
+    Write-Output "System bootstrap process completed."
+}
