@@ -135,11 +135,12 @@ function Install-PowerShellEditorServices {
         return
     }
 
-    $DownloadUrl = 'https://github.com/PowerShell/PowerShellEditorServices/releases/latest/download/PowerShellEditorServices.zip';
-    $ZipPath = "$HOME/Downloads/PowerShellEditorServices.zip";
-    $InstallPath = "C:/tools/PowerShellEditorServices";
-    Invoke-WebRequest -Method 'GET' -Uri $DownloadUrl -OutFile $ZipPath;
-    Expand-Archive -Path $ZipPath -DestinationPath $InstallPath;
+    $DownloadUrl = 'https://github.com/PowerShell/PowerShellEditorServices/releases/latest/download/PowerShellEditorServices.zip'
+    $ZipPath = "$HOME/Downloads/PowerShellEditorServices.zip"
+    $InstallPath = "C:/tools/PowerShellEditorServices"
+    Invoke-WebRequest -Method 'GET' -Uri $DownloadUrl -OutFile $ZipPath
+    mkdir $InstallPath -ErrorAction SilentlyContinue | Out-Null
+    Expand-Archive -Path $ZipPath -OutputPath $InstallPath
 }
 
 function Install-MacTypeSettings {
