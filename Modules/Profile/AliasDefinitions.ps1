@@ -10,7 +10,7 @@ Set-Alias -Name cde -Value Set-LocationFuzzyEverything
 Set-Alias -Name paste -Value Get-Clipboard
 Set-Alias -Name psadmin -Value Relaunch-Admin | Out-Null
 Set-Alias -Name Relaunch-Admin -Value Enter-Admin | Out-Null
-Set-Alias -Name sudo -Value Enter-Admin | Out-Null
+#Set-Alias -Name sudo -Value Enter-Admin | Out-Null
 Set-Alias -Name k -Value kubectl
 Set-Alias -Name ln -Value New-SymbolicLink | Out-Null
 Set-Alias -Name lh -Value New-HardLink | Out-Null
